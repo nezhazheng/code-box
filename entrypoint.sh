@@ -66,5 +66,10 @@ cleanup() {
 
 trap cleanup SIGTERM SIGINT
 
-# Execute the main command
-exec "$@"
+# Execute the main command or keep running
+if [ $# -eq 0 ]; then
+    # No command provided, keep container running
+    tail -f /dev/null
+else
+    exec "$@"
+fi
