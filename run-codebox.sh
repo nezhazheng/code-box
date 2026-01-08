@@ -8,7 +8,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Default configuration
-IMAGE_NAME="code_box"
+IMAGE_NAME="nezhazheng/code-box:latest"
 BASE_CONTAINER_NAME="code_box"
 
 # Get current directory name for auto-naming

@@ -7,7 +7,7 @@ set -e
 # ==========================================
 # 配置区
 # ==========================================
-IMAGE_NAME="agent-box-image"
+IMAGE_NAME="nezhazheng/code-box:latest"
 
 # 根据当前目录名生成唯一容器名
 PROJECT_NAME=$(basename "$PWD" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]//g')
