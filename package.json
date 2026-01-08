@@ -1,0 +1,27 @@
+{
+  "name": "code-box",
+  "version": "1.0.0",
+  "description": "AI Vibe Coding Sandbox - Auto-updating Docker image with popular AI coding tools",
+  "private": true,
+  "dependencies": {
+    "@anthropic-ai/claude-code": "2.1.1",
+    "@openai/codex": "0.79.0",
+    "@google/gemini-cli": "0.21.1",
+    "opencode-ai": "1.1.6",
+    "oh-my-opencode": "2.14.0"
+  },
+  "scripts": {
+    "smoke-test": "./smoke-test.sh"
+  },
+  "keywords": [
+    "ai",
+    "vibe-coding",
+    "claude-code",
+    "codex",
+    "gemini",
+    "opencode",
+    "docker",
+    "sandbox"
+  ],
+  "license": "MIT"
+}

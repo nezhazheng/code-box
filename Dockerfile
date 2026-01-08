@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
+    jq \
     # Graphics and VNC dependencies
     xvfb \
     x11vnc \
@@ -38,21 +39,12 @@ RUN useradd -m -s /bin/bash -G sudo developer \
     && echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # === Install Vibe Coding Tools (as root) ===
-
-# 1. Claude Code (Anthropic)
-RUN npm install -g @anthropic-ai/claude-code
-
-# 2. GitHub Copilot CLI (GitHub)
-RUN npm install -g @githubnext/github-copilot-cli
-
-# 5. oh-my-opencode (OpenCode)
-# Install via npm if available, otherwise via git
-RUN npm install -g oh-my-opencode || \
-    (git clone https://github.com/oh-my-opencode/oh-my-opencode.git /tmp/oh-my-opencode && \
-     cd /tmp/oh-my-opencode && \
-     npm install -g . && \
-     rm -rf /tmp/oh-my-opencode) || \
-    echo "oh-my-opencode installation failed, skipping..."
+# Copy package.json and install tools with pinned versions
+COPY package.json /tmp/package.json
+RUN TOOLS=$(cat /tmp/package.json | jq -r '.dependencies | to_entries | map("\(.key)@\(.value)") | join(" ")') \
+    && echo "Installing: $TOOLS" \
+    && npm install -g $TOOLS \
+    && rm /tmp/package.json
 
 # Install Playwright system dependencies (as root)
 RUN pip3 install playwright && python3 -m playwright install-deps chromium
@@ -61,12 +53,8 @@ RUN pip3 install playwright && python3 -m playwright install-deps chromium
 USER developer
 WORKDIR /home/developer
 
-# 3. Codex CLI (OpenAI)
-# Note: Install OpenAI CLI for Codex access
-RUN pip3 install --user openai
-
-# 4. Gemini CLI (Google)
-RUN pip3 install --user google-generativeai
+# Install Python tools for user
+RUN pip3 install --user openai google-generativeai
 
 # Install Playwright and Chromium browser for user
 RUN pip3 install --user playwright \

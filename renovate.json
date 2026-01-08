@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "labels": ["dependencies", "automated"],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "@anthropic-ai/claude-code",
+        "@openai/codex",
+        "@google/gemini-cli",
+        "opencode-ai",
+        "oh-my-opencode"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "groupName": "vibe-coding-tools",
+      "groupSlug": "vibe-coding-tools",
+      "schedule": ["at any time"],
+      "prPriority": 10
+    }
+  ],
+  "prHourlyLimit": 5,
+  "prConcurrentLimit": 3,
+  "rebaseWhen": "conflicted",
+  "platformAutomerge": true
+}
