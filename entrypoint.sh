@@ -1,75 +1,69 @@
 #!/bin/bash
-# entrypoint.sh - Agent Sandbox 启动脚本
-# 负责启动虚拟显示器、窗口管理器、VNC 服务
 
-set -e
+# Color codes for output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-echo "=========================================="
-echo "🛡️  Agent Sandbox Starting..."
-echo "=========================================="
+# Clear any existing X server lock files
+sudo rm -f /tmp/.X99-lock /tmp/.X11-unix/X99
 
-# --- 0. 清理旧的 X server 锁文件 ---
-rm -f /tmp/.X0-lock /tmp/.X11-unix/X0 2>/dev/null || true
-
-# --- 1. 启动虚拟显示器 (Xvfb) ---
-echo "🖥️  Starting Virtual Display (Xvfb)..."
-Xvfb :0 -screen 0 ${RESOLUTION}x24 &
+# Start Xvfb (Virtual Framebuffer)
+echo -e "${BLUE}Starting Xvfb on display ${DISPLAY}...${NC}"
+Xvfb ${DISPLAY} -screen 0 1920x1080x24 &
 XVFB_PID=$!
-
-# 等待 Xvfb 启动完成
 sleep 2
-if ! kill -0 $XVFB_PID 2>/dev/null; then
-    echo "❌ Failed to start Xvfb"
-    exit 1
-fi
-echo "✅ Xvfb started (PID: $XVFB_PID)"
 
-# --- 2. 启动窗口管理器 (Openbox) ---
-echo "🪟 Starting Window Manager (Openbox)..."
+# Start Openbox window manager
+echo -e "${BLUE}Starting Openbox window manager...${NC}"
 openbox &
 OPENBOX_PID=$!
 sleep 1
-echo "✅ Openbox started (PID: $OPENBOX_PID)"
 
-# --- 3. 启动 VNC 服务器 ---
-echo "📡 Starting VNC Server (x11vnc)..."
-x11vnc -display :0 -forever -shared -bg -nopw -o /tmp/x11vnc.log 2>/dev/null
-sleep 1
+# Start x11vnc server
+echo -e "${BLUE}Starting VNC server on port ${VNC_PORT}...${NC}"
+x11vnc -display ${DISPLAY} -forever -shared -rfbport ${VNC_PORT} -nopw &
+VNC_PID=$!
+sleep 2
 
-# 验证 VNC 是否启动
-if nc -z localhost 5900; then
-    echo "✅ VNC Server started on port 5900"
-else
-    echo "❌ Failed to start VNC Server"
-    exit 1
-fi
-
-# --- 4. 启动 noVNC (Web 代理) ---
-echo "🌐 Starting noVNC Web Interface..."
-websockify --web /usr/share/novnc/ --wrap-mode=ignore 6080 localhost:5900 &
+# Start noVNC web server
+echo -e "${BLUE}Starting noVNC web server on port ${NOVNC_PORT}...${NC}"
+websockify --web=/usr/share/novnc ${NOVNC_PORT} localhost:${VNC_PORT} &
 NOVNC_PID=$!
 sleep 2
 
-# 验证 noVNC 是否启动
-if nc -z localhost 6080; then
-    echo "✅ noVNC started on port 6080"
-else
-    echo "❌ Failed to start noVNC"
-    exit 1
-fi
-
-# --- 5. 输出状态信息 ---
+# Display status message
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}   Code Box - AI Coding Sandbox${NC}"
+echo -e "${GREEN}========================================${NC}"
 echo ""
-echo "=========================================="
-echo "✅ Sandbox Ready!"
-echo "=========================================="
-echo "📺 VNC Web Access: http://localhost:6080"
-echo "🖥️  Resolution: ${RESOLUTION}"
-echo "🌐 Browser: Google Chrome (google-chrome)"
-echo "🤖 Agent CLI: claude (Claude Code)"
-echo "=========================================="
+echo -e "${YELLOW}Installed AI Coding Tools:${NC}"
+echo "  - Claude Code (Anthropic)"
+echo "  - GitHub Copilot CLI"
+echo "  - Aider"
+echo "  - Continue.dev"
+echo "  - Playwright + Chromium"
+echo ""
+echo -e "${YELLOW}Display & Remote Access:${NC}"
+echo "  - Display: ${DISPLAY}"
+echo "  - VNC Port: ${VNC_PORT}"
+echo "  - noVNC Web UI: http://localhost:${NOVNC_PORT}"
+echo ""
+echo -e "${YELLOW}Workspace:${NC}"
+echo "  - /home/developer/workspace"
+echo ""
+echo -e "${GREEN}========================================${NC}"
 echo ""
 
-# --- 6. 保持容器运行 ---
-# 使用 wait 代替 tail -f，更优雅地处理信号
-wait $XVFB_PID
+# Cleanup function
+cleanup() {
+    echo -e "${BLUE}Shutting down services...${NC}"
+    kill $NOVNC_PID $VNC_PID $OPENBOX_PID $XVFB_PID 2>/dev/null
+    exit 0
+}
+
+trap cleanup SIGTERM SIGINT
+
+# Execute the main command
+exec "$@"
