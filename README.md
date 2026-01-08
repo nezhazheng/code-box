@@ -2,6 +2,26 @@
 
 A universal Docker sandbox environment for AI-powered coding tools. Code Box provides a secure, isolated environment with multiple AI coding assistants pre-installed and ready to use.
 
+## One-Line Installation
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh | bash
+```
+
+This will:
+- Download the `code-box` command to your PATH
+- Pull the latest Docker image
+- Set up the configuration directory
+
+After installation, you can use `code-box` from any directory:
+
+```bash
+cd /path/to/your/project
+code-box              # Start container
+code-box --list       # List all projects and ports
+code-box --help       # Show help
+```
+
 ## Features
 
 ### Installed Vibe Coding Tools
@@ -29,36 +49,64 @@ A universal Docker sandbox environment for AI-powered coding tools. Code Box pro
 
 ## Quick Start
 
-### 1. Build the Docker Image
+### Option 1: One-Line Install (Recommended)
 
 ```bash
-docker build -t code_box .
+curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh | bash
 ```
 
-### 2. Run the Container
-
-Use the convenient launcher script:
+Then use from any project directory:
 
 ```bash
-chmod +x run-codebox.sh
-./run-codebox.sh
+cd ~/myproject
+code-box
 ```
 
-The container will be automatically named based on your current directory (e.g., `code_box_myproject`).
+### Option 2: Manual Setup
 
-### 3. Access the Environment
+```bash
+# Clone the repository
+git clone https://github.com/nezhazheng/code-box.git
+cd code-box
+
+# Copy command to your PATH
+cp code-box /usr/local/bin/
+chmod +x /usr/local/bin/code-box
+
+# Pull the image
+docker pull nezhazheng/code-box:latest
+```
+
+### Access the Environment
 
 **Terminal Access:**
 - The script automatically attaches you to the container shell
 - Or manually: `docker exec -it code_box_<project> /bin/bash`
 
 **Browser Access (noVNC):**
-- Open: http://localhost:6080
+- Run `code-box --list` to see assigned ports
+- Open: http://localhost:<novnc-port>
 - Click "Connect" to access the desktop environment
 
 **VNC Client:**
-- Connect to: `localhost:5900`
+- Run `code-box --list` to see assigned ports
+- Connect to: `localhost:<vnc-port>`
 - No password required
+
+### Port Management
+
+Code Box automatically assigns random ports for each project and remembers them:
+
+```bash
+# List all projects and their ports
+code-box --list
+
+# Example output:
+#   code_box_myproject
+#     Path:   /home/user/myproject
+#     VNC:    localhost:12345
+#     noVNC:  http://localhost:23456
+```
 
 ## Usage Examples
 
@@ -135,30 +183,48 @@ with sync_playwright() as p:
 EOF
 ```
 
-## Launcher Script Commands
+## Commands
 
 ```bash
-# Start or attach to container
-./run-codebox.sh
+# Start or attach to container (from any project directory)
+code-box
 
 # Stop the container
-./run-codebox.sh --stop
+code-box --stop
 
 # Remove the container
-./run-codebox.sh --remove
+code-box --remove
 
 # View container logs
-./run-codebox.sh --logs
+code-box --logs
+
+# List all projects and their ports
+code-box --list
+
+# Pull latest image
+code-box --pull
+
+# Clean up all stopped containers
+code-box --clean
 
 # Show help
-./run-codebox.sh --help
+code-box --help
 ```
 
 ## Configuration
 
+### Config Directory
+
+Code Box stores configuration in `~/.code-box/`:
+
+```
+~/.code-box/
+└── ports.json    # Project-to-port mappings
+```
+
 ### Resource Limits
 
-Edit `run-codebox.sh` to adjust:
+Edit the `code-box` script or set environment variables:
 
 ```bash
 MEMORY_LIMIT="4g"      # RAM limit
@@ -197,10 +263,13 @@ NOVNC_PORT=6081
 code_box/
 ├── Dockerfile           # Multi-tool Docker image definition
 ├── entrypoint.sh        # Container startup script
-├── run-codebox.sh       # Smart launcher script
-├── .gitignore          # Git ignore patterns
-├── README.md           # This file
-└── LICENSE             # MIT License
+├── code-box             # Global CLI command
+├── install.sh           # One-line installer
+├── package.json         # Vibe coding tool versions (for auto-update)
+├── renovate.json        # Auto-update configuration
+├── .github/workflows/   # CI/CD pipeline
+├── README.md            # This file
+└── LICENSE              # MIT License
 ```
 
 ## Troubleshooting

@@ -53,19 +53,33 @@ Users get latest tools on next `docker pull`
       && npm install -g $TOOLS
   ```
 
+## Installation and Usage
+
+### One-Line Install
+```bash
+curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh | bash
+```
+
+### Usage
+```bash
+code-box              # Start container for current directory
+code-box --list       # List all projects and their ports
+code-box --stop       # Stop container
+code-box --remove     # Remove container
+code-box --pull       # Pull latest image
+code-box --clean      # Clean up all stopped containers
+```
+
+### Port Management
+- Ports are automatically assigned randomly (range: 10000-60000)
+- Port mappings are stored in `~/.code-box/ports.json`
+- Each project gets persistent port assignments
+
 ## Building and Testing
 
 ### Local Build
 ```bash
 docker build -t nezhazheng/code-box:latest .
-```
-
-### Run Locally
-```bash
-./run-codebox.sh           # Start/attach to container
-./run-codebox.sh --stop    # Stop container
-./run-codebox.sh --remove  # Remove container
-./run-codebox.sh --logs    # View logs
 ```
 
 ### Smoke Tests
