@@ -2,6 +2,7 @@
   "name": "code-box",
   "version": "1.0.0",
   "description": "AI Vibe Coding Sandbox - Auto-updating Docker image with popular AI coding tools",
+  "repository": "https://github.com/nezhazheng/code-box",
   "private": true,
   "dependencies": {
     "@anthropic-ai/claude-code": "2.1.1",
