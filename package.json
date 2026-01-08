@@ -24,5 +24,6 @@
     "docker",
     "sandbox"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "author": "nezhazheng"
 }
