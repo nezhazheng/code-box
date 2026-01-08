@@ -1,6 +1,13 @@
 # Code Box
 
-A universal Docker sandbox environment for AI-powered coding tools. Code Box provides a secure, isolated environment with multiple AI coding assistants pre-installed and ready to use.
+The Ultimate Sandbox for Vibe Coding
+
+- Free and fully open source!
+- One-line installation, ready to use out of the box
+- Container-level isolation for Coding Agents, with shared authentication where needed
+- Built-in cc, oh-my-opencode, codex, and more
+- 0-day tracking of the latest Vibe Coding tool versions
+- Sandbox with browser support, accessible both remotely and locally
 
 English | [简体中文](README.zh-CN.md)
 
@@ -51,8 +58,6 @@ code-box --help       # Show help
 
 ## Quick Start
 
-### Option 1: One-Line Install (Recommended)
-
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh | bash
 ```
@@ -62,21 +67,6 @@ Then use from any project directory:
 ```bash
 cd ~/myproject
 code-box
-```
-
-### Option 2: Manual Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/nezhazheng/code-box.git
-cd code-box
-
-# Copy command to your PATH
-cp code-box /usr/local/bin/
-chmod +x /usr/local/bin/code-box
-
-# Pull the image
-docker pull nezhazheng/code-box:latest
 ```
 
 ### Access the Environment
@@ -259,69 +249,6 @@ VNC_PORT=5901
 NOVNC_PORT=6081
 ```
 
-## Directory Structure
-
-```
-code_box/
-├── Dockerfile           # Multi-tool Docker image definition
-├── entrypoint.sh        # Container startup script
-├── code-box             # Global CLI command
-├── install.sh           # One-line installer
-├── package.json         # Vibe coding tool versions (for auto-update)
-├── renovate.json        # Auto-update configuration
-├── .github/workflows/   # CI/CD pipeline
-├── README.md            # This file
-└── LICENSE              # MIT License
-```
-
-## Troubleshooting
-
-### Container Won't Start
-
-```bash
-# Check if container exists
-docker ps -a | grep code_box
-
-# Remove old container
-./run-codebox.sh --remove
-
-# Rebuild image
-docker build -t code_box .
-```
-
-### VNC/noVNC Not Accessible
-
-```bash
-# Check if ports are in use
-lsof -i :5900
-lsof -i :6080
-
-# View container logs
-./run-codebox.sh --logs
-
-# Check if X server is running
-docker exec code_box_<project> ps aux | grep Xvfb
-```
-
-### Playwright/Chromium Issues
-
-```bash
-# Reinstall Chromium
-python3 -m playwright install chromium
-python3 -m playwright install-deps chromium
-
-# Increase shared memory if needed
-# Edit run-codebox.sh: SHM_SIZE="4g"
-```
-
-### Claude Code Authentication
-
-```bash
-# Your ~/.claude directory is mounted automatically
-# Run claude login if needed
-claude login
-```
-
 ## Use Cases
 
 1. **Multi-Tool AI Development**
@@ -368,17 +295,14 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 - [Claude Code Documentation](https://github.com/anthropics/claude-code)
 - [GitHub Copilot CLI](https://githubnext.com/projects/copilot-cli/)
-- [Aider Documentation](https://aider.chat/)
-- [Continue.dev Documentation](https://continue.dev/)
-- [Playwright Documentation](https://playwright.dev/)
 
 ## Support
 
 For issues, questions, or suggestions:
 - Open an issue on GitHub
 - Check existing documentation for each tool
-- Review container logs: `./run-codebox.sh --logs`
+- Review container logs: `code-box --logs`
 
 ---
 
-**Code Box** - Your universal sandbox for AI-powered coding.
+**Code Box** - The Ultimate Sandbox for Vibe Coding.

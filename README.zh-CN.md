@@ -1,6 +1,13 @@
 # Code Box
 
-一个通用的 Docker 沙箱环境，专为 AI 编程工具设计。Code Box 提供了一个安全、隔离的环境，预装了多个 AI 编程助手，开箱即用。
+为Vibe Coding而生的沙盒环境
+
+- 免费且完全开源！
+- 一键安装，开箱即用
+- 容器级Coding Agent运行时环境隔离，认证信息之类该复用的复用
+- 内置cc、oh-my-opencode、codex等工具
+- 0day 跟进Vibe Coding工具最新版本
+- 沙盒内带浏览器，同时支持你直接在本地操作沙盒内浏览器
 
 [English](README.md) | 简体中文
 
@@ -43,15 +50,12 @@ code-box --help       # 显示帮助
 - **安全性**: 非 root 用户 (developer)，支持 sudo 访问
 - **资源控制**: 可配置 CPU、内存和共享内存限制
 
-### 远程访问
+### 远程访问沙盒内浏览器
 
-- **VNC 服务器**: 端口 5900（供 VNC 客户端使用）
-- **noVNC 网页界面**: 端口 6080（浏览器访问）
-- **显示器**: 虚拟 X11 显示器 (:99) 用于 GUI 应用
+- **VNC 服务器**
+- **noVNC 网页界面**
 
 ## 快速开始
-
-### 方式一：一键安装（推荐）
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh | bash
@@ -62,21 +66,6 @@ curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh
 ```bash
 cd ~/myproject
 code-box
-```
-
-### 方式二：手动设置
-
-```bash
-# 克隆仓库
-git clone https://github.com/nezhazheng/code-box.git
-cd code-box
-
-# 复制命令到 PATH
-cp code-box /usr/local/bin/
-chmod +x /usr/local/bin/code-box
-
-# 拉取镜像
-docker pull nezhazheng/code-box:latest
 ```
 
 ### 访问环境
@@ -259,69 +248,6 @@ VNC_PORT=5901
 NOVNC_PORT=6081
 ```
 
-## 目录结构
-
-```
-code_box/
-├── Dockerfile           # 多工具 Docker 镜像定义
-├── entrypoint.sh        # 容器启动脚本
-├── code-box             # 全局 CLI 命令
-├── install.sh           # 一键安装器
-├── package.json         # Vibe coding 工具版本（用于自动更新）
-├── renovate.json        # 自动更新配置
-├── .github/workflows/   # CI/CD 流水线
-├── README.md            # 英文文档
-└── LICENSE              # MIT 许可证
-```
-
-## 故障排查
-
-### 容器无法启动
-
-```bash
-# 检查容器是否存在
-docker ps -a | grep code_box
-
-# 删除旧容器
-code-box --remove
-
-# 重新构建镜像
-docker build -t nezhazheng/code-box:latest .
-```
-
-### VNC/noVNC 无法访问
-
-```bash
-# 检查端口是否被占用
-lsof -i :5900
-lsof -i :6080
-
-# 查看容器日志
-code-box --logs
-
-# 检查 X server 是否运行
-docker exec code_box_<project> ps aux | grep Xvfb
-```
-
-### Playwright/Chromium 问题
-
-```bash
-# 重新安装 Chromium
-python3 -m playwright install chromium
-python3 -m playwright install-deps chromium
-
-# 如需增加共享内存
-# 编辑 code-box 脚本: SHM_SIZE="4g"
-```
-
-### Claude Code 认证
-
-```bash
-# ~/.claude 目录会自动挂载
-# 如需要运行 claude login
-claude login
-```
-
 ## 使用场景
 
 1. **多工具 AI 开发**
@@ -368,9 +294,6 @@ MIT License - 详见 [LICENSE](LICENSE) 文件。
 
 - [Claude Code 文档](https://github.com/anthropics/claude-code)
 - [GitHub Copilot CLI](https://githubnext.com/projects/copilot-cli/)
-- [Aider 文档](https://aider.chat/)
-- [Continue.dev 文档](https://continue.dev/)
-- [Playwright 文档](https://playwright.dev/)
 
 ## 支持
 
@@ -381,4 +304,4 @@ MIT License - 详见 [LICENSE](LICENSE) 文件。
 
 ---
 
-**Code Box** - 你的 AI 编程通用沙箱。
+**Code Box** - 为Vibe Coding而生的沙盒环境。

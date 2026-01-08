@@ -179,3 +179,68 @@ docker run --rm nezhazheng/code-box:latest bash -c "
 2. **Automerge enabled**: Vibe coding tool updates merge automatically if tests pass
 3. **Infrastructure locked**: Base images and CI tools don't auto-update to prevent cascade failures
 4. **Docker Hub as distribution**: Users pull `nezhazheng/code-box:latest`, not local builds
+
+## Directory Structure
+
+```
+code_box/
+├── Dockerfile           # Multi-tool Docker image definition
+├── entrypoint.sh        # Container startup script
+├── code-box             # Global CLI command
+├── install.sh           # One-line installer
+├── package.json         # Vibe coding tool versions (for auto-update)
+├── renovate.json        # Auto-update configuration
+├── .github/workflows/   # CI/CD pipeline
+├── README.md            # English documentation
+├── README.zh-CN.md      # Chinese (Simplified) documentation
+├── CLAUDE.md            # This file
+└── LICENSE              # MIT License
+```
+
+## Troubleshooting
+
+### Container Won't Start
+
+```bash
+# Check if container exists
+docker ps -a | grep code_box
+
+# Remove old container
+code-box --remove
+
+# Rebuild image
+docker build -t nezhazheng/code-box:latest .
+```
+
+### VNC/noVNC Not Accessible
+
+```bash
+# Check if ports are in use
+lsof -i :5900
+lsof -i :6080
+
+# View container logs
+code-box --logs
+
+# Check if X server is running
+docker exec code_box_<project> ps aux | grep Xvfb
+```
+
+### Playwright/Chromium Issues
+
+```bash
+# Reinstall Chromium
+python3 -m playwright install chromium
+python3 -m playwright install-deps chromium
+
+# Increase shared memory if needed
+# Edit code-box script: SHM_SIZE="4g"
+```
+
+### Claude Code Authentication
+
+```bash
+# ~/.claude directory is mounted automatically
+# Run claude login if needed
+claude login
+```
