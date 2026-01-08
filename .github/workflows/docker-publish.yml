@@ -115,8 +115,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
 
       - name: Image digest
         run: echo "Pushed image with digest ${{ steps.meta.outputs.digest }}"
