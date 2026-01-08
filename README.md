@@ -2,6 +2,8 @@
 
 A universal Docker sandbox environment for AI-powered coding tools. Code Box provides a secure, isolated environment with multiple AI coding assistants pre-installed and ready to use.
 
+English | [简体中文](README.zh-CN.md)
+
 ## One-Line Installation
 
 ```bash
