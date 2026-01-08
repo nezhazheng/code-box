@@ -4,12 +4,13 @@ A universal Docker sandbox environment for AI-powered coding tools. Code Box pro
 
 ## Features
 
-### Installed AI Coding Tools
+### Installed Vibe Coding Tools
 
 - **Claude Code** - Anthropic's official CLI for Claude AI
+- **Codex** - OpenAI's powerful code generation AI (via OpenAI CLI)
+- **Gemini CLI** - Google's Gemini AI for code assistance
+- **oh-my-opencode** - OpenCode AI coding assistant
 - **GitHub Copilot CLI** - GitHub's AI-powered command-line assistant
-- **Aider** - AI pair programming in your terminal
-- **Continue.dev** - Open-source autopilot for software development
 - **Playwright + Chromium** - Browser automation for testing and scraping
 
 ### System Capabilities
@@ -80,24 +81,42 @@ github-copilot-cli what-the-shell "find all python files modified in last week"
 github-copilot-cli git-assist "undo last commit but keep changes"
 ```
 
-### Using Aider
+### Using Codex (OpenAI)
 
 ```bash
-# Start aider in your project
-cd ~/workspace/myproject
-aider
+# Use OpenAI CLI for code generation
+export OPENAI_API_KEY="your-api-key-here"
 
-# Inside aider
-> Add error handling to main.py
-> Create unit tests for the UserService class
+# Generate code
+openai api completions.create \
+  -m gpt-3.5-turbo-instruct \
+  -p "Write a Python function to calculate fibonacci numbers"
 ```
 
-### Using Continue.dev
+### Using Gemini CLI (Google)
 
 ```bash
-# Continue.dev typically runs as an IDE extension
-# For CLI usage, refer to: https://continue.dev/docs
-continue
+# Set up Gemini API key
+export GOOGLE_API_KEY="your-api-key-here"
+
+# Use Gemini for code assistance
+python3 -c "
+from google import generativeai as genai
+genai.configure(api_key='your-api-key')
+model = genai.GenerativeModel('gemini-pro')
+response = model.generate_content('Write a React component for a todo list')
+print(response.text)
+"
+```
+
+### Using oh-my-opencode
+
+```bash
+# Start oh-my-opencode
+cd ~/workspace/myproject
+oh-my-opencode
+
+# Follow the interactive prompts for AI-assisted coding
 ```
 
 ### Using Playwright

@@ -41,17 +41,29 @@ RUN useradd -m -s /bin/bash -G sudo developer \
 USER developer
 WORKDIR /home/developer
 
-# Install Claude Code
+# === Install Vibe Coding Tools ===
+
+# 1. Claude Code (Anthropic)
 RUN npm install -g @anthropic-ai/claude-code
 
-# Install GitHub Copilot CLI
+# 2. GitHub Copilot CLI (GitHub)
 RUN npm install -g @githubnext/github-copilot-cli
 
-# Install Continue.dev
-RUN npm install -g continue
+# 3. Codex CLI (OpenAI)
+# Note: Install OpenAI CLI for Codex access
+RUN pip3 install --user openai
 
-# Install Aider
-RUN pip3 install --user aider-chat
+# 4. Gemini CLI (Google)
+RUN pip3 install --user google-generativeai
+
+# 5. oh-my-opencode (OpenCode)
+# Install via npm if available, otherwise via git
+RUN npm install -g oh-my-opencode || \
+    (git clone https://github.com/oh-my-opencode/oh-my-opencode.git /tmp/oh-my-opencode && \
+     cd /tmp/oh-my-opencode && \
+     npm install -g . && \
+     rm -rf /tmp/oh-my-opencode) || \
+    echo "oh-my-opencode installation failed, skipping..."
 
 # Install Playwright and Chromium browser
 RUN pip3 install --user playwright \
