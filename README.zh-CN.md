@@ -181,11 +181,8 @@ code-box --list
 # 拉取最新 Docker 镜像
 code-box --pull
 
-# 手动检查并更新 code-box CLI
+# 更新 CLI 和 Docker 镜像
 code-box --update
-
-# 完整升级：更新 CLI + 拉取镜像 + 重启容器（推荐）
-code-box --upgrade
 
 # 查看版本
 code-box --version
