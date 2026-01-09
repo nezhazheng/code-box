@@ -1,7 +1,8 @@
 # Code Box
 
-Deleted local files by mistake? pip dependency conflicts driving you crazy? Ports already taken? Browser use messing up your workflow? Code Box fixes it all — in one place.
-**Code Box** — The sandbox built for Vibe Coding.
+Deleted local files by mistake? pip dependency conflicts driving you crazy? Ports already taken? Browser use messing up your workflow? Code Box fixes it all — in one place!
+
+**Code Box** — The sandbox built for Vibe Coding!
 
 - Free and fully open source!
 - One-line installation, ready to use out of the box

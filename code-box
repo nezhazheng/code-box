@@ -274,7 +274,7 @@ else:
         print(f\"  \033[1m{info.get('container', 'unknown')}\033[0m\")
         print(f\"    Path:   {info.get('path', 'unknown')}\")
         print(f\"    VNC:    localhost:{info.get('vnc', '?')}\")
-        print(f\"    noVNC:  http://localhost:{info.get('novnc', '?')}\")
+        print(f\"    noVNC:  http://localhost:{info.get('novnc', '?')}/vnc.html\")
         print()
 "
 }
@@ -452,7 +452,7 @@ read VNC_PORT NOVNC_PORT <<< $(get_ports)
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
     if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
         echo -e "${GREEN}Container ${CONTAINER_NAME} is already running.${NC}"
-        echo -e "${YELLOW}noVNC:${NC} http://localhost:${NOVNC_PORT}"
+        echo -e "${YELLOW}noVNC:${NC} http://localhost:${NOVNC_PORT}/vnc.html"
         echo -e "${YELLOW}VNC:${NC}   localhost:${VNC_PORT}"
         echo ""
         echo -e "${BLUE}Attaching to container...${NC}"
@@ -461,7 +461,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
         echo -e "${YELLOW}Container ${CONTAINER_NAME} exists but is stopped.${NC}"
         echo -e "${BLUE}Starting container...${NC}"
         docker start "${CONTAINER_NAME}"
-        echo -e "${YELLOW}noVNC:${NC} http://localhost:${NOVNC_PORT}"
+        echo -e "${YELLOW}noVNC:${NC} http://localhost:${NOVNC_PORT}/vnc.html"
         echo -e "${YELLOW}VNC:${NC}   localhost:${VNC_PORT}"
         echo ""
         docker exec -it "${CONTAINER_NAME}" /bin/bash
