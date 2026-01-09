@@ -21,15 +21,15 @@ openbox &
 OPENBOX_PID=$!
 sleep 1
 
-# Start x11vnc server
+# Start x11vnc server (quiet mode, log to file)
 echo -e "${BLUE}Starting VNC server on port ${VNC_PORT}...${NC}"
-x11vnc -display ${DISPLAY} -forever -shared -rfbport ${VNC_PORT} -nopw &
+x11vnc -display ${DISPLAY} -forever -shared -rfbport ${VNC_PORT} -nopw -quiet -logfile /tmp/x11vnc.log &
 VNC_PID=$!
 sleep 2
 
-# Start noVNC web server
+# Start noVNC web server (redirect output to log file)
 echo -e "${BLUE}Starting noVNC web server on port ${NOVNC_PORT}...${NC}"
-websockify --web=/usr/share/novnc ${NOVNC_PORT} localhost:${VNC_PORT} &
+websockify --web=/usr/share/novnc ${NOVNC_PORT} localhost:${VNC_PORT} > /tmp/novnc.log 2>&1 &
 NOVNC_PID=$!
 sleep 2
 
