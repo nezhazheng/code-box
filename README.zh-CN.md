@@ -55,13 +55,6 @@ code-box --help       # 显示帮助
 - **安全性**: 非 root 用户 (developer)，支持 sudo 访问
 - **资源控制**: 可配置 CPU、内存和共享内存限制
 
-### 远程访问沙盒内浏览器
-
-- **VNC 服务器**：随机分配端口（供 VNC 客户端使用）
-- **noVNC 网页界面**：随机分配端口（浏览器访问）
-- **显示器**：虚拟 X11 显示器 (:99) 用于 GUI 应用
-- **端口查询**：使用 `code-box --list` 查看分配的端口
-
 ## 快速开始
 
 ```bash
@@ -75,23 +68,7 @@ cd ~/myproject
 code-box
 ```
 
-### 访问环境
-
-**终端访问：**
-- 脚本会自动连接到容器 shell
-- 或手动执行：`docker exec -it code_box_<project> /bin/bash`
-
-**浏览器访问 (noVNC)：**
-- 运行 `code-box --list` 查看分配的端口
-- 打开：http://localhost:<novnc-port>
-- 点击 "Connect" 访问桌面环境
-
-**VNC 客户端：**
-- 运行 `code-box --list` 查看分配的端口
-- 连接到：`localhost:<vnc-port>`
-- 无需密码
-
-### 端口管理
+### 访问沙盒内的浏览器
 
 Code Box 自动为每个项目分配随机端口并记住它们：
 
@@ -103,8 +80,10 @@ code-box --list
 #   code_box_myproject
 #     Path:   /home/user/myproject
 #     VNC:    localhost:12345
-#     noVNC:  http://localhost:23456
+#     noVNC:  http://localhost:23456/vnc.html
 ```
+
+noVNC的地址直接粘贴到你的本地浏览器中就能操作沙盒内的浏览器啦！
 
 ## 使用示例
 
@@ -204,6 +183,9 @@ code-box --pull
 
 # 手动检查并更新 code-box CLI
 code-box --update
+
+# 完整升级：更新 CLI + 拉取镜像 + 重启容器（推荐）
+code-box --upgrade
 
 # 查看版本
 code-box --version

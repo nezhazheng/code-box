@@ -205,6 +205,9 @@ code-box --pull
 # Manually check and update code-box CLI
 code-box --update
 
+# Full upgrade: update CLI + pull image + restart container (recommended)
+code-box --upgrade
+
 # Show version
 code-box --version
 

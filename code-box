@@ -7,7 +7,7 @@ set -e
 
 # Version - auto-generated from last modified date
 # Format: YYYY.MM.DD (updated automatically when script changes)
-VERSION="2025.01.09"
+VERSION="2026.01.09"
 
 # Color codes
 GREEN='\033[0;32m'
@@ -295,6 +295,7 @@ show_help() {
     echo "  --clean      Remove all stopped containers and clear port registry"
     echo "  --pull       Pull latest Docker image"
     echo "  --update     Check and install updates for code-box CLI"
+    echo "  --upgrade    Full upgrade: update CLI + pull image + restart container"
     echo "  --version    Show version information"
     echo "  --help       Show this help message"
     echo ""
@@ -378,6 +379,79 @@ pull_image() {
     echo -e "${GREEN}Done!${NC}"
 }
 
+# Full upgrade: CLI + Docker image + restart container
+upgrade_all() {
+    echo -e "${GREEN}========================================${NC}"
+    echo -e "${GREEN}  Code Box Full Upgrade${NC}"
+    echo -e "${GREEN}========================================${NC}"
+    echo ""
+
+    # Step 1: Update CLI (inline version of force_update)
+    echo -e "${CYAN}[1/3] Updating code-box CLI...${NC}"
+    rm -f "${LAST_UPDATE_CHECK_FILE}"
+    local remote_script=$(curl -fsSL --connect-timeout 5 --max-time 10 "${SCRIPT_URL}" 2>/dev/null)
+
+    if [ -n "$remote_script" ]; then
+        local remote_version=$(echo "$remote_script" | grep -m1 '^VERSION=' | cut -d'"' -f2) || remote_version="unknown"
+        local local_hash=$(get_local_hash)
+        local remote_hash
+        if command -v md5 &>/dev/null; then
+            remote_hash=$(echo "$remote_script" | md5 -q 2>/dev/null || echo "")
+        else
+            remote_hash=$(echo "$remote_script" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "")
+        fi
+
+        if [ "$remote_hash" != "$local_hash" ] && [ -n "$local_hash" ] && [ -n "$remote_hash" ]; then
+            echo -e "${YELLOW}New CLI version available: ${remote_version}${NC}"
+            local script_path=$(which code-box 2>/dev/null || echo "${HOME}/.local/bin/code-box")
+            local tmp_file=$(mktemp)
+            if echo "$remote_script" > "$tmp_file" && [ -s "$tmp_file" ]; then
+                if [ -w "$script_path" ] || [ -w "$(dirname "$script_path")" ]; then
+                    mv "$tmp_file" "$script_path" && chmod +x "$script_path"
+                else
+                    sudo mv "$tmp_file" "$script_path" && sudo chmod +x "$script_path"
+                fi
+                echo -e "${GREEN}✓ CLI updated to ${remote_version}${NC}"
+            else
+                rm -f "$tmp_file"
+                echo -e "${YELLOW}⚠ CLI update failed, continuing...${NC}"
+            fi
+        else
+            echo -e "${GREEN}✓ CLI is up to date (${VERSION})${NC}"
+        fi
+    else
+        echo -e "${YELLOW}⚠ Could not check for CLI updates, continuing...${NC}"
+    fi
+    echo ""
+
+    # Step 2: Pull Docker image
+    echo -e "${CYAN}[2/3] Pulling latest Docker image...${NC}"
+    docker pull "${IMAGE_NAME}"
+    echo -e "${GREEN}✓ Image updated${NC}"
+    echo ""
+
+    # Step 3: Restart container if exists in current directory
+    echo -e "${CYAN}[3/3] Checking for running containers...${NC}"
+    local container_name=$(get_container_name)
+    if docker ps -a --format '{{.Names}}' | grep -q "^${container_name}$"; then
+        echo -e "${YELLOW}Found container: ${container_name}${NC}"
+        echo -e "${BLUE}Stopping and removing old container...${NC}"
+        docker stop "${container_name}" 2>/dev/null || true
+        docker rm "${container_name}" 2>/dev/null || true
+        echo -e "${GREEN}✓ Old container removed${NC}"
+        echo ""
+        echo -e "${GREEN}Starting new container with updated image...${NC}"
+        echo -e "${CYAN}Run 'code-box' to start the new container${NC}"
+    else
+        echo -e "${GREEN}✓ No container to restart in this directory${NC}"
+    fi
+
+    echo ""
+    echo -e "${GREEN}========================================${NC}"
+    echo -e "${GREEN}  Upgrade Complete!${NC}"
+    echo -e "${GREEN}========================================${NC}"
+}
+
 # Clean up stopped containers
 clean_all() {
     echo -e "${BLUE}Cleaning up stopped code-box containers...${NC}"
@@ -411,6 +485,10 @@ case "${1:-}" in
         ;;
     --update)
         force_update
+        exit 0
+        ;;
+    --upgrade)
+        upgrade_all
         exit 0
         ;;
     --list|-l)
