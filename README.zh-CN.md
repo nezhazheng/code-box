@@ -1,6 +1,7 @@
 # Code Box
 
-为Vibe Coding而生的沙盒环境
+本地文件被误删？pip依赖冲突？本地端口占用？browser use干扰了正常工作？Code Box一次解决所有这些问题！
+Code Box - 为Vibe Coding而生的沙盒环境!
 
 - 免费且完全开源！
 - 一键安装，开箱即用
