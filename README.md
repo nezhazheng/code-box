@@ -1,13 +1,14 @@
 # Code Box
 
-The Ultimate Sandbox for Vibe Coding
+Deleted local files by mistake? pip dependency conflicts driving you crazy? Ports already taken? Browser use messing up your workflow? Code Box fixes it all — in one place.
+**Code Box** — The sandbox built for Vibe Coding.
 
 - Free and fully open source!
 - One-line installation, ready to use out of the box
 - Container-level isolation for Coding Agents, with shared authentication where needed
 - Built-in cc, oh-my-opencode, codex, and more
 - 0-day tracking of the latest Vibe Coding tool versions
-- Sandbox with browser support, accessible both remotely and locally
+- A sandbox with a built-in browser that you can control directly from your local machine — just like using Manus.
 
 English | [简体中文](README.zh-CN.md)
 

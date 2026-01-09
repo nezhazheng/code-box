@@ -9,7 +9,7 @@
 - 容器级Coding Agent运行时环境隔离，认证信息之类该复用的复用
 - 内置cc、oh-my-opencode、codex等工具
 - 0day 跟进Vibe Coding工具最新版本
-- 沙盒内带浏览器，同时支持你直接在本地操作沙盒内浏览器
+- 沙盒内带浏览器，同时支持你直接在本地操作沙盒内浏览器，就像Manus一样
 
 [English](README.md) | 简体中文
 
