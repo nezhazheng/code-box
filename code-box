@@ -97,44 +97,58 @@ check_for_updates() {
         return 0
     fi
 
-    # If hashes differ, update
+    # If hashes differ, prompt for update
     if [ "$remote_hash" != "$local_hash" ]; then
         # Extract remote version for display
         local remote_version
         remote_version=$(echo "$remote_script" | grep -m1 '^VERSION=' | cut -d'"' -f2) || remote_version="unknown"
 
-        echo -e "${YELLOW}New version available: ${remote_version} (current: ${VERSION})${NC}"
-        echo -e "${BLUE}Updating code-box CLI...${NC}"
+        echo ""
+        echo -e "${YELLOW}[Code Box] A new version is available: ${remote_version} (current: ${VERSION})${NC}"
+        echo -n -e "${CYAN}Would you like to update? [Y/n] ${NC}"
 
-        # Find where the script is installed
-        local script_path=$(which code-box 2>/dev/null || echo "")
-        if [ -z "$script_path" ]; then
-            script_path="${HOME}/.local/bin/code-box"
-        fi
+        # Read user input with timeout
+        local answer
+        read -t 10 -n 1 answer 2>/dev/null || answer="n"
+        echo ""  # New line after input
 
-        # Download and replace
-        local tmp_file=$(mktemp)
-        if echo "$remote_script" > "$tmp_file" && [ -s "$tmp_file" ]; then
-            # Check if we need sudo
-            if [ -w "$script_path" ] || [ -w "$(dirname "$script_path")" ]; then
-                mv "$tmp_file" "$script_path"
-                chmod +x "$script_path"
-            else
-                sudo mv "$tmp_file" "$script_path"
-                sudo chmod +x "$script_path"
+        # Default to yes if empty or 'y'
+        if [[ "$answer" =~ ^[Yy]$ ]] || [[ -z "$answer" ]]; then
+            echo -e "${BLUE}Updating code-box CLI...${NC}"
+
+            # Find where the script is installed
+            local script_path=$(which code-box 2>/dev/null || echo "")
+            if [ -z "$script_path" ]; then
+                script_path="${HOME}/.local/bin/code-box"
             fi
-            echo -e "${GREEN}✓ CLI updated to version ${remote_version}${NC}"
 
-            # Also pull latest Docker image
-            echo -e "${BLUE}Pulling latest Docker image...${NC}"
-            docker pull "${IMAGE_NAME}" 2>/dev/null && echo -e "${GREEN}✓ Docker image updated${NC}" || echo -e "${YELLOW}⚠ Docker image pull failed${NC}"
+            # Download and replace
+            local tmp_file=$(mktemp)
+            if echo "$remote_script" > "$tmp_file" && [ -s "$tmp_file" ]; then
+                # Check if we need sudo
+                if [ -w "$script_path" ] || [ -w "$(dirname "$script_path")" ]; then
+                    mv "$tmp_file" "$script_path"
+                    chmod +x "$script_path"
+                else
+                    sudo mv "$tmp_file" "$script_path"
+                    sudo chmod +x "$script_path"
+                fi
+                echo -e "${GREEN}✓ CLI updated to version ${remote_version}${NC}"
 
-            echo -e "${CYAN}Restarting with new version...${NC}"
-            echo ""
-            exec "$script_path" "$@"
+                # Also pull latest Docker image
+                echo -e "${BLUE}Pulling latest Docker image...${NC}"
+                docker pull "${IMAGE_NAME}" 2>/dev/null && echo -e "${GREEN}✓ Docker image updated${NC}" || echo -e "${YELLOW}⚠ Docker image pull failed${NC}"
+
+                echo -e "${CYAN}Restarting with new version...${NC}"
+                echo ""
+                exec "$script_path" "$@"
+            else
+                rm -f "$tmp_file"
+                echo -e "${RED}Update failed, continuing with current version${NC}"
+            fi
         else
-            rm -f "$tmp_file"
-            echo -e "${RED}Update failed, continuing with current version${NC}"
+            echo -e "${CYAN}Update skipped. Run 'code-box --update' to update manually.${NC}"
+            echo ""
         fi
     fi
 }
