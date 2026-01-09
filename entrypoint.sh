@@ -66,6 +66,9 @@ cleanup() {
 
 trap cleanup SIGTERM SIGINT
 
+# Change to workspace directory
+cd /home/developer/workspace
+
 # Execute the main command or keep running
 if [ $# -eq 0 ]; then
     # No command provided, keep container running
