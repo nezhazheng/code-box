@@ -52,9 +52,10 @@ code-box --help       # Show help
 
 ### Remote Access
 
-- **VNC Server**: Port 5900 (for VNC clients)
-- **noVNC Web UI**: Port 6080 (browser-based access)
+- **VNC Server**: Randomly assigned port (for VNC clients)
+- **noVNC Web UI**: Randomly assigned port (browser-based access)
 - **Display**: Virtual X11 display (:99) for GUI applications
+- **Port Discovery**: Use `code-box --list` to see your assigned ports
 
 ## Quick Start
 
@@ -236,18 +237,16 @@ Add more volumes in `run-codebox.sh`:
 -v "/path/on/host:/path/in/container"
 ```
 
-### Port Mappings
+### Port Assignment
 
-Default ports:
-- VNC: 5900
-- noVNC: 6080
+Code Box uses automatic port allocation:
 
-Change in `run-codebox.sh` if needed:
+- Port range: 10000-60000 (randomly assigned)
+- Each project gets persistent port assignments
+- Port mappings stored in: `~/.code-box/ports.json`
+- View ports: Run `code-box --list`
 
-```bash
-VNC_PORT=5901
-NOVNC_PORT=6081
-```
+Code Box automatically assigns available ports when starting containers, avoiding port conflicts.
 
 ## Uninstall
 
