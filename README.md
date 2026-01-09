@@ -23,6 +23,8 @@ This will:
 - Pull the latest Docker image
 - Set up the configuration directory
 
+**Auto-Update**: The `code-box` command automatically checks for updates every 24 hours and upgrades itself when a new version is available.
+
 After installation, you can use `code-box` from any directory:
 
 ```bash
@@ -195,8 +197,14 @@ code-box --logs
 # List all projects and their ports
 code-box --list
 
-# Pull latest image
+# Pull latest Docker image
 code-box --pull
+
+# Manually check and update code-box CLI
+code-box --update
+
+# Show version
+code-box --version
 
 # Clean up all stopped containers
 code-box --clean

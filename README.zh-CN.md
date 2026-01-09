@@ -23,6 +23,8 @@ curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh
 - 拉取最新的 Docker 镜像
 - 创建配置目录
 
+**自动更新**：`code-box` 命令会每 24 小时自动检查更新，发现新版本时自动升级，无需手动操作。
+
 安装完成后，可以在任何目录使用 `code-box` 命令：
 
 ```bash
@@ -195,8 +197,14 @@ code-box --logs
 # 列出所有项目及其端口
 code-box --list
 
-# 拉取最新镜像
+# 拉取最新 Docker 镜像
 code-box --pull
+
+# 手动检查并更新 code-box CLI
+code-box --update
+
+# 查看版本
+code-box --version
 
 # 清理所有已停止的容器
 code-box --clean

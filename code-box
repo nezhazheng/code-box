@@ -5,6 +5,9 @@
 
 set -e
 
+# Version (used for auto-update)
+VERSION="1.0.1"
+
 # Color codes
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -18,6 +21,12 @@ IMAGE_NAME="nezhazheng/code-box:latest"
 CONFIG_DIR="${HOME}/.code-box"
 PORTS_FILE="${CONFIG_DIR}/ports.json"
 CLAUDE_CONFIG_DIR="${HOME}/.claude"
+LAST_UPDATE_CHECK_FILE="${CONFIG_DIR}/.last_update_check"
+UPDATE_CHECK_INTERVAL=86400  # 24 hours in seconds
+
+# Update URLs
+REPO_RAW_URL="https://raw.githubusercontent.com/nezhazheng/code-box/main"
+SCRIPT_URL="${REPO_RAW_URL}/code-box"
 
 # Resource limits
 MEMORY_LIMIT="4g"
@@ -30,6 +39,76 @@ PORT_MAX=60000
 
 # Ensure config directory exists
 mkdir -p "${CONFIG_DIR}"
+
+# Auto-update check function
+check_for_updates() {
+    # Skip update check for certain commands
+    case "${1:-}" in
+        --help|-h|--version|-v)
+            return 0
+            ;;
+    esac
+
+    # Check if we should skip update check (based on last check time)
+    if [ -f "${LAST_UPDATE_CHECK_FILE}" ]; then
+        local last_check=$(cat "${LAST_UPDATE_CHECK_FILE}" 2>/dev/null || echo "0")
+        local now=$(date +%s)
+        local diff=$((now - last_check))
+        if [ $diff -lt $UPDATE_CHECK_INTERVAL ]; then
+            return 0
+        fi
+    fi
+
+    # Record this check time
+    date +%s > "${LAST_UPDATE_CHECK_FILE}"
+
+    # Try to fetch remote version (with timeout, silently)
+    local remote_script
+    remote_script=$(curl -fsSL --connect-timeout 3 --max-time 5 "${SCRIPT_URL}" 2>/dev/null) || return 0
+
+    # Extract remote version
+    local remote_version
+    remote_version=$(echo "$remote_script" | grep -m1 '^VERSION=' | cut -d'"' -f2) || return 0
+
+    if [ -z "$remote_version" ]; then
+        return 0
+    fi
+
+    # Compare versions
+    if [ "$remote_version" != "$VERSION" ]; then
+        echo -e "${YELLOW}New version available: ${remote_version} (current: ${VERSION})${NC}"
+        echo -e "${BLUE}Updating code-box...${NC}"
+
+        # Find where the script is installed
+        local script_path=$(which code-box 2>/dev/null || echo "")
+        if [ -z "$script_path" ]; then
+            script_path="${HOME}/.local/bin/code-box"
+        fi
+
+        # Download and replace
+        local tmp_file=$(mktemp)
+        if echo "$remote_script" > "$tmp_file" && [ -s "$tmp_file" ]; then
+            # Check if we need sudo
+            if [ -w "$script_path" ] || [ -w "$(dirname "$script_path")" ]; then
+                mv "$tmp_file" "$script_path"
+                chmod +x "$script_path"
+            else
+                sudo mv "$tmp_file" "$script_path"
+                sudo chmod +x "$script_path"
+            fi
+            echo -e "${GREEN}✓ Updated to version ${remote_version}${NC}"
+            echo -e "${CYAN}Restarting with new version...${NC}"
+            echo ""
+            exec "$script_path" "$@"
+        else
+            rm -f "$tmp_file"
+            echo -e "${RED}Update failed, continuing with current version${NC}"
+        fi
+    fi
+}
+
+# Run update check (in background-ish, but we need the result)
+check_for_updates "$@"
 
 # Initialize ports file if not exists
 if [ ! -f "${PORTS_FILE}" ]; then
@@ -176,6 +255,7 @@ else:
 # Show help
 show_help() {
     echo -e "${GREEN}Code Box - Universal AI Coding Sandbox${NC}"
+    echo -e "${CYAN}Version: ${VERSION}${NC}"
     echo ""
     echo "Usage: code-box [COMMAND]"
     echo ""
@@ -186,7 +266,9 @@ show_help() {
     echo "  --logs       Show container logs"
     echo "  --list       List all projects and their ports"
     echo "  --clean      Remove all stopped containers and clear port registry"
-    echo "  --pull       Pull latest image from Docker Hub"
+    echo "  --pull       Pull latest Docker image"
+    echo "  --update     Check and install updates for code-box CLI"
+    echo "  --version    Show version information"
     echo "  --help       Show this help message"
     echo ""
     echo -e "${YELLOW}Installed Tools:${NC}"
@@ -194,6 +276,68 @@ show_help() {
     echo ""
     echo -e "${YELLOW}Config Directory:${NC} ${CONFIG_DIR}"
     echo -e "${YELLOW}Ports Registry:${NC}   ${PORTS_FILE}"
+}
+
+# Force update check
+force_update() {
+    echo -e "${BLUE}Checking for updates...${NC}"
+
+    # Remove last check file to force check
+    rm -f "${LAST_UPDATE_CHECK_FILE}"
+
+    # Fetch remote script
+    local remote_script
+    remote_script=$(curl -fsSL --connect-timeout 5 --max-time 10 "${SCRIPT_URL}" 2>/dev/null)
+
+    if [ -z "$remote_script" ]; then
+        echo -e "${RED}Failed to check for updates. Please check your internet connection.${NC}"
+        exit 1
+    fi
+
+    # Extract remote version
+    local remote_version
+    remote_version=$(echo "$remote_script" | grep -m1 '^VERSION=' | cut -d'"' -f2)
+
+    if [ -z "$remote_version" ]; then
+        echo -e "${RED}Failed to parse remote version.${NC}"
+        exit 1
+    fi
+
+    echo -e "Current version: ${VERSION}"
+    echo -e "Latest version:  ${remote_version}"
+
+    if [ "$remote_version" = "$VERSION" ]; then
+        echo -e "${GREEN}You are already running the latest version.${NC}"
+        exit 0
+    fi
+
+    echo ""
+    echo -e "${YELLOW}New version available!${NC}"
+    echo -e "${BLUE}Updating code-box...${NC}"
+
+    # Find where the script is installed
+    local script_path=$(which code-box 2>/dev/null || echo "")
+    if [ -z "$script_path" ]; then
+        script_path="${HOME}/.local/bin/code-box"
+    fi
+
+    # Download and replace
+    local tmp_file=$(mktemp)
+    if echo "$remote_script" > "$tmp_file" && [ -s "$tmp_file" ]; then
+        # Check if we need sudo
+        if [ -w "$script_path" ] || [ -w "$(dirname "$script_path")" ]; then
+            mv "$tmp_file" "$script_path"
+            chmod +x "$script_path"
+        else
+            sudo mv "$tmp_file" "$script_path"
+            sudo chmod +x "$script_path"
+        fi
+        echo -e "${GREEN}✓ Successfully updated to version ${remote_version}${NC}"
+    else
+        rm -f "$tmp_file"
+        echo -e "${RED}Update failed.${NC}"
+        exit 1
+    fi
 }
 
 # Pull latest image
@@ -228,6 +372,14 @@ PROJECT_ID=$(get_project_id)
 case "${1:-}" in
     --help|-h)
         show_help
+        exit 0
+        ;;
+    --version|-v)
+        echo -e "${GREEN}Code Box${NC} version ${CYAN}${VERSION}${NC}"
+        exit 0
+        ;;
+    --update)
+        force_update
         exit 0
         ;;
     --list|-l)
