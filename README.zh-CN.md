@@ -19,6 +19,7 @@ curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh
 
 安装脚本会：
 - 下载 `code-box` 命令到你的 PATH
+- 自动配置 PATH（支持 bash、zsh、fish 等常见 shell）
 - 拉取最新的 Docker 镜像
 - 创建配置目录
 

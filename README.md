@@ -19,6 +19,7 @@ curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh
 
 This will:
 - Download the `code-box` command to your PATH
+- Auto-configure PATH (supports bash, zsh, fish, and other common shells)
 - Pull the latest Docker image
 - Set up the configuration directory
 
