@@ -8,6 +8,7 @@ set -e
 # Color codes
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
@@ -73,15 +74,63 @@ echo -e "${BLUE}Pulling Docker image (this may take a while)...${NC}"
 docker pull nezhazheng/code-box:latest
 echo -e "  ${GREEN}✓${NC} Docker image ready"
 
-# Check if install dir is in PATH
-if [[ ":$PATH:" != *":${INSTALL_DIR}:"* ]]; then
+# Auto-add to PATH if needed
+if [[ ":$PATH:" != *":${INSTALL_DIR}:"* ]] && [[ "${INSTALL_DIR}" == *".local/bin"* ]]; then
     echo ""
-    echo -e "${YELLOW}Note: ${INSTALL_DIR} is not in your PATH.${NC}"
-    echo "Add this to your shell profile (~/.bashrc, ~/.zshrc, etc.):"
-    echo ""
-    echo -e "  ${CYAN}export PATH=\"\$PATH:${INSTALL_DIR}\"${NC}"
-    echo ""
-    echo "Then restart your terminal or run: source ~/.bashrc (or ~/.zshrc)"
+    echo -e "${BLUE}Configuring PATH...${NC}"
+
+    # Detect shell and corresponding config file
+    SHELL_CONFIG=""
+    SHELL_NAME=$(basename "$SHELL")
+
+    case "$SHELL_NAME" in
+        zsh)
+            if [ -f "${HOME}/.zshrc" ]; then
+                SHELL_CONFIG="${HOME}/.zshrc"
+            fi
+            ;;
+        bash)
+            if [ -f "${HOME}/.bashrc" ]; then
+                SHELL_CONFIG="${HOME}/.bashrc"
+            elif [ -f "${HOME}/.bash_profile" ]; then
+                SHELL_CONFIG="${HOME}/.bash_profile"
+            elif [ -f "${HOME}/.profile" ]; then
+                SHELL_CONFIG="${HOME}/.profile"
+            fi
+            ;;
+        fish)
+            FISH_CONFIG="${HOME}/.config/fish/config.fish"
+            if [ -f "$FISH_CONFIG" ]; then
+                SHELL_CONFIG="$FISH_CONFIG"
+            fi
+            ;;
+    esac
+
+    # Add PATH to shell config if detected
+    if [ -n "$SHELL_CONFIG" ]; then
+        # Check if PATH already exists in the config
+        if ! grep -q "${INSTALL_DIR}" "$SHELL_CONFIG" 2>/dev/null; then
+            echo "" >> "$SHELL_CONFIG"
+            echo "# Added by code-box installer" >> "$SHELL_CONFIG"
+            if [ "$SHELL_NAME" = "fish" ]; then
+                echo "set -gx PATH \$PATH ${INSTALL_DIR}" >> "$SHELL_CONFIG"
+            else
+                echo "export PATH=\"\$PATH:${INSTALL_DIR}\"" >> "$SHELL_CONFIG"
+            fi
+            echo -e "  ${GREEN}✓${NC} Added ${INSTALL_DIR} to ${SHELL_CONFIG}"
+            echo -e "  ${YELLOW}Please restart your terminal or run:${NC}"
+            echo -e "    ${CYAN}source ${SHELL_CONFIG}${NC}"
+        else
+            echo -e "  ${GREEN}✓${NC} PATH already configured in ${SHELL_CONFIG}"
+        fi
+    else
+        echo -e "  ${YELLOW}Note: ${INSTALL_DIR} is not in your PATH.${NC}"
+        echo "  Add this to your shell profile (~/.bashrc, ~/.zshrc, etc.):"
+        echo ""
+        echo -e "    ${CYAN}export PATH=\"\$PATH:${INSTALL_DIR}\"${NC}"
+        echo ""
+        echo "  Then restart your terminal or run: source ~/.bashrc (or ~/.zshrc)"
+    fi
 fi
 
 echo ""
