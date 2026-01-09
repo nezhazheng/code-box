@@ -180,6 +180,38 @@ docker run --rm nezhazheng/code-box:latest bash -c "
 3. **Infrastructure locked**: Base images and CI tools don't auto-update to prevent cascade failures
 4. **Docker Hub as distribution**: Users pull `nezhazheng/code-box:latest`, not local builds
 
+## CLI Auto-Update System
+
+The `code-box` CLI has a built-in auto-update mechanism.
+
+### How It Works
+
+- Uses **file hash comparison** (MD5) to detect changes
+- No need to manually bump version numbers
+- Any code change to `code-box` script triggers update for users
+- VERSION variable (format: `YYYY.MM.DD`) is for display only
+
+### Version Release Process
+
+**Automatic**: Simply push changes to `code-box` script on `main` branch:
+1. Edit `code-box` script
+2. Update `VERSION="YYYY.MM.DD"` to today's date (for user display)
+3. Commit and push to `main`
+4. Users automatically get the update within 24 hours
+
+**Manual version update reminder**: When modifying `code-box`, always update:
+```bash
+VERSION="2025.01.09"  # Update to current date
+```
+
+### Update Check Behavior
+
+- Checks every 24 hours (configurable via `UPDATE_CHECK_INTERVAL`)
+- 3-second connection timeout, 5-second total timeout
+- Silent failure on network issues
+- Supports both macOS (`md5`) and Linux (`md5sum`)
+- Auto-detects sudo requirement based on install location
+
 ## Directory Structure
 
 ```

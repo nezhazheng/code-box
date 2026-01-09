@@ -5,8 +5,9 @@
 
 set -e
 
-# Version (used for auto-update)
-VERSION="1.0.1"
+# Version - auto-generated from last modified date
+# Format: YYYY.MM.DD (updated automatically when script changes)
+VERSION="2025.01.09"
 
 # Color codes
 GREEN='\033[0;32m'
@@ -40,11 +41,24 @@ PORT_MAX=60000
 # Ensure config directory exists
 mkdir -p "${CONFIG_DIR}"
 
+# Get hash of current script
+get_local_hash() {
+    local script_path=$(which code-box 2>/dev/null || echo "${HOME}/.local/bin/code-box")
+    if [ -f "$script_path" ]; then
+        # Use md5 on macOS, md5sum on Linux
+        if command -v md5 &>/dev/null; then
+            md5 -q "$script_path" 2>/dev/null || echo ""
+        else
+            md5sum "$script_path" 2>/dev/null | cut -d' ' -f1 || echo ""
+        fi
+    fi
+}
+
 # Auto-update check function
 check_for_updates() {
     # Skip update check for certain commands
     case "${1:-}" in
-        --help|-h|--version|-v)
+        --help|-h|--version|-v|--update)
             return 0
             ;;
     esac
@@ -62,20 +76,33 @@ check_for_updates() {
     # Record this check time
     date +%s > "${LAST_UPDATE_CHECK_FILE}"
 
-    # Try to fetch remote version (with timeout, silently)
+    # Try to fetch remote script (with timeout, silently)
     local remote_script
     remote_script=$(curl -fsSL --connect-timeout 3 --max-time 5 "${SCRIPT_URL}" 2>/dev/null) || return 0
 
-    # Extract remote version
-    local remote_version
-    remote_version=$(echo "$remote_script" | grep -m1 '^VERSION=' | cut -d'"' -f2) || return 0
-
-    if [ -z "$remote_version" ]; then
+    if [ -z "$remote_script" ]; then
         return 0
     fi
 
-    # Compare versions
-    if [ "$remote_version" != "$VERSION" ]; then
+    # Compare using hash
+    local local_hash=$(get_local_hash)
+    local remote_hash
+    if command -v md5 &>/dev/null; then
+        remote_hash=$(echo "$remote_script" | md5 -q 2>/dev/null || echo "")
+    else
+        remote_hash=$(echo "$remote_script" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "")
+    fi
+
+    if [ -z "$local_hash" ] || [ -z "$remote_hash" ]; then
+        return 0
+    fi
+
+    # If hashes differ, update
+    if [ "$remote_hash" != "$local_hash" ]; then
+        # Extract remote version for display
+        local remote_version
+        remote_version=$(echo "$remote_script" | grep -m1 '^VERSION=' | cut -d'"' -f2) || remote_version="unknown"
+
         echo -e "${YELLOW}New version available: ${remote_version} (current: ${VERSION})${NC}"
         echo -e "${BLUE}Updating code-box...${NC}"
 
@@ -107,7 +134,7 @@ check_for_updates() {
     fi
 }
 
-# Run update check (in background-ish, but we need the result)
+# Run update check
 check_for_updates "$@"
 
 # Initialize ports file if not exists
@@ -296,22 +323,26 @@ force_update() {
 
     # Extract remote version
     local remote_version
-    remote_version=$(echo "$remote_script" | grep -m1 '^VERSION=' | cut -d'"' -f2)
+    remote_version=$(echo "$remote_script" | grep -m1 '^VERSION=' | cut -d'"' -f2) || remote_version="unknown"
 
-    if [ -z "$remote_version" ]; then
-        echo -e "${RED}Failed to parse remote version.${NC}"
-        exit 1
+    # Compare using hash
+    local local_hash=$(get_local_hash)
+    local remote_hash
+    if command -v md5 &>/dev/null; then
+        remote_hash=$(echo "$remote_script" | md5 -q 2>/dev/null || echo "")
+    else
+        remote_hash=$(echo "$remote_script" | md5sum 2>/dev/null | cut -d' ' -f1 || echo "")
     fi
 
     echo -e "Current version: ${VERSION}"
     echo -e "Latest version:  ${remote_version}"
+    echo ""
 
-    if [ "$remote_version" = "$VERSION" ]; then
+    if [ "$remote_hash" = "$local_hash" ]; then
         echo -e "${GREEN}You are already running the latest version.${NC}"
         exit 0
     fi
 
-    echo ""
     echo -e "${YELLOW}New version available!${NC}"
     echo -e "${BLUE}Updating code-box...${NC}"
 
