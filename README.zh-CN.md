@@ -248,6 +248,38 @@ VNC_PORT=5901
 NOVNC_PORT=6081
 ```
 
+## 卸载
+
+### 完全卸载 Code Box
+
+如需完全卸载 Code Box，按以下步骤操作：
+
+```bash
+# 1. 停止并删除所有 code_box 容器
+code-box --clean
+
+# 2. 删除 Docker 镜像
+docker rmi nezhazheng/code-box:latest
+
+# 3. 删除配置目录
+rm -rf ~/.code-box
+
+# 4. 删除 code-box 命令（可能需要 sudo）
+sudo rm /usr/local/bin/code-box
+# 或者，如果安装在其他位置
+which code-box | xargs rm
+```
+
+### 仅删除特定项目的容器
+
+如果只想删除某个项目的容器：
+
+```bash
+# 在项目目录下
+cd /path/to/your/project
+code-box --remove
+```
+
 ## 使用场景
 
 1. **多工具 AI 开发**

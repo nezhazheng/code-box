@@ -249,6 +249,38 @@ VNC_PORT=5901
 NOVNC_PORT=6081
 ```
 
+## Uninstall
+
+### Complete Uninstallation
+
+To completely uninstall Code Box, follow these steps:
+
+```bash
+# 1. Stop and remove all code_box containers
+code-box --clean
+
+# 2. Remove Docker image
+docker rmi nezhazheng/code-box:latest
+
+# 3. Remove configuration directory
+rm -rf ~/.code-box
+
+# 4. Remove code-box command (may require sudo)
+sudo rm /usr/local/bin/code-box
+# Or, if installed in a different location
+which code-box | xargs rm
+```
+
+### Remove a Specific Project Container
+
+To remove only a specific project's container:
+
+```bash
+# In the project directory
+cd /path/to/your/project
+code-box --remove
+```
+
 ## Use Cases
 
 1. **Multi-Tool AI Development**
