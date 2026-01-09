@@ -303,5 +303,6 @@ else
         -p "${VNC_PORT}:5900" \
         -p "${NOVNC_PORT}:6080" \
         -e DISPLAY=:99 \
-        "${IMAGE_NAME}"
+        "${IMAGE_NAME}" \
+        /bin/bash
 fi
