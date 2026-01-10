@@ -498,7 +498,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
         echo -e "${YELLOW}VNC:${NC}   localhost:${VNC_PORT}"
         echo ""
         echo -e "${BLUE}Attaching to container...${NC}"
-        docker exec -it "${CONTAINER_NAME}" /bin/bash
+        docker exec -it -w /home/developer/workspace "${CONTAINER_NAME}" /bin/bash
     else
         echo -e "${YELLOW}Container ${CONTAINER_NAME} exists but is stopped.${NC}"
         echo -e "${BLUE}Starting container...${NC}"
@@ -506,7 +506,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
         echo -e "${YELLOW}noVNC:${NC} http://localhost:${NOVNC_PORT}/vnc.html"
         echo -e "${YELLOW}VNC:${NC}   localhost:${VNC_PORT}"
         echo ""
-        docker exec -it "${CONTAINER_NAME}" /bin/bash
+        docker exec -it -w /home/developer/workspace "${CONTAINER_NAME}" /bin/bash
     fi
 else
     # Create Claude config directory if it doesn't exist
