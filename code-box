@@ -21,7 +21,7 @@ NC='\033[0m'
 IMAGE_NAME="nezhazheng/code-box:latest"
 CONFIG_DIR="${HOME}/.code-box"
 PORTS_FILE="${CONFIG_DIR}/ports.json"
-CLAUDE_CONFIG_DIR="${HOME}/.claude"
+CLAUDE_CONFIG_DIR="${HOME}/.claude_config_docker"
 LAST_UPDATE_CHECK_FILE="${CONFIG_DIR}/.last_update_check"
 UPDATE_CHECK_INTERVAL=86400  # 24 hours in seconds
 

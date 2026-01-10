@@ -219,7 +219,7 @@ SHM_SIZE="2g"          # 共享内存（Chromium 需要）
 
 默认情况下，脚本挂载：
 - 当前目录 → `/home/developer/workspace`
-- `~/.claude` → `/home/developer/.claude`（Claude Code 配置）
+- `~/.claude_config_docker` → `/home/developer/.claude`（Claude Code 配置，与宿主机隔离）
 
 在 `run-codebox.sh` 中添加更多卷：
 

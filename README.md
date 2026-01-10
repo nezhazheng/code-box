@@ -240,7 +240,7 @@ SHM_SIZE="2g"          # Shared memory (important for Chromium)
 
 By default, the script mounts:
 - Current directory → `/home/developer/workspace`
-- `~/.claude` → `/home/developer/.claude` (for Claude Code config)
+- `~/.claude_config_docker` → `/home/developer/.claude` (for Claude Code config, isolated from host)
 
 Add more volumes in `run-codebox.sh`:
 
