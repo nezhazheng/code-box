@@ -7,7 +7,7 @@ set -e
 
 # Version - auto-generated from last modified date
 # Format: YYYY.MM.DD (updated automatically when script changes)
-VERSION="2026.01.09"
+VERSION="2026.01.11"
 
 # Color codes
 GREEN='\033[0;32m'
