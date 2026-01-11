@@ -1,8 +1,8 @@
-# Code Box
+# Code-Box
 
-Deleted local files by mistake? pip dependency conflicts driving you crazy? Ports already taken? Browser use messing up your workflow? Code Box fixes it all — in one place!
+Deleted local files by mistake? pip dependency conflicts driving you crazy? Ports already taken? Browser use messing up your workflow? Code-Box fixes it all — in one place!
 
-**Code Box** — The sandbox built for Vibe Coding!
+**Code-Box** — The sandbox built for Vibe Coding!
 
 - Free and fully open source!
 - One-line installation, ready to use out of the box
@@ -93,7 +93,7 @@ code-box
 
 ### Port Management
 
-Code Box automatically assigns random ports for each project and remembers them:
+Code-Box automatically assigns random ports for each project and remembers them:
 
 ```bash
 # List all projects and their ports
@@ -219,7 +219,7 @@ code-box --help
 
 ### Config Directory
 
-Code Box stores configuration in `~/.code-box/`:
+Code-Box stores configuration in `~/.code-box/`:
 
 ```
 ~/.code-box/
@@ -250,20 +250,20 @@ Add more volumes in `run-codebox.sh`:
 
 ### Port Assignment
 
-Code Box uses automatic port allocation:
+Code-Box uses automatic port allocation:
 
 - Port range: 10000-60000 (randomly assigned)
 - Each project gets persistent port assignments
 - Port mappings stored in: `~/.code-box/ports.json`
 - View ports: Run `code-box --list`
 
-Code Box automatically assigns available ports when starting containers, avoiding port conflicts.
+Code-Box automatically assigns available ports when starting containers, avoiding port conflicts.
 
 ## Uninstall
 
 ### Complete Uninstallation
 
-To completely uninstall Code Box, follow these steps:
+To completely uninstall Code-Box, follow these steps:
 
 ```bash
 # 1. Stop and remove all code_box containers
@@ -347,4 +347,4 @@ For issues, questions, or suggestions:
 
 ---
 
-**Code Box** - The Ultimate Sandbox for Vibe Coding.
+**Code-Box** - The sandbox built for Vibe Coding!

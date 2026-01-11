@@ -1,8 +1,8 @@
-# Code Box
+# Code-Box
 
-本地文件被误删？pip依赖冲突？本地端口占用？browser use干扰了正常工作？Code Box一次解决所有这些问题！
+本地文件被误删？pip依赖冲突？本地端口占用？browser use干扰了正常工作？Code-Box一次解决所有这些问题！
 
-**Code Box** - 为Vibe Coding而生的沙盒环境!
+**Code-Box** - 为Vibe Coding而生的沙盒环境!
 
 - 免费且完全开源！
 - 一键安装，开箱即用
@@ -70,7 +70,7 @@ code-box
 
 ### 访问沙盒内的浏览器
 
-Code Box 自动为每个项目分配随机端口并记住它们：
+Code-Box 自动为每个项目分配随机端口并记住它们：
 
 ```bash
 # 列出所有项目及其端口
@@ -198,7 +198,7 @@ code-box --help
 
 ### 配置目录
 
-Code Box 将配置存储在 `~/.code-box/`：
+Code-Box 将配置存储在 `~/.code-box/`：
 
 ```
 ~/.code-box/
@@ -229,20 +229,20 @@ SHM_SIZE="2g"          # 共享内存（Chromium 需要）
 
 ### 端口分配
 
-Code Box 使用自动端口分配机制：
+Code-Box 使用自动端口分配机制：
 
 - 端口范围：10000-60000（随机分配）
 - 每个项目的端口分配是持久化的
 - 端口映射存储在：`~/.code-box/ports.json`
 - 查看端口：运行 `code-box --list`
 
-每次启动容器时，Code Box 会自动分配可用端口，避免端口冲突。
+每次启动容器时，Code-Box 会自动分配可用端口，避免端口冲突。
 
 ## 卸载
 
-### 完全卸载 Code Box
+### 完全卸载 Code-Box
 
-如需完全卸载 Code Box，按以下步骤操作：
+如需完全卸载 Code-Box，按以下步骤操作：
 
 ```bash
 # 1. 停止并删除所有 code_box 容器
@@ -326,4 +326,4 @@ MIT License - 详见 [LICENSE](LICENSE) 文件。
 
 ---
 
-**Code Box** - 为Vibe Coding而生的沙盒环境。
+**Code-Box** - 为Vibe Coding而生的沙盒环境。
