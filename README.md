@@ -1,5 +1,9 @@
 # Code-Box
 
+<p align="center">
+  <img src="assets/banner.png" alt="Code-Box Banner" width="800">
+</p>
+
 Deleted local files by mistake? pip dependency conflicts driving you crazy? Ports already taken? Browser use messing up your workflow? Code-Box fixes it all — in one place!
 
 **Code-Box** — The sandbox built for Vibe Coding!
