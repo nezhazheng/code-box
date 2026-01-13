@@ -7,7 +7,7 @@ set -e
 
 # Version - auto-generated from last modified date
 # Format: YYYY.MM.DD (updated automatically when script changes)
-VERSION="2026.01.11"
+VERSION="2026.01.13"
 
 # Color codes
 GREEN='\033[0;32m'
@@ -22,6 +22,7 @@ IMAGE_NAME="nezhazheng/code-box:latest"
 CONFIG_DIR="${HOME}/.code-box"
 PORTS_FILE="${CONFIG_DIR}/ports.json"
 CLAUDE_CONFIG_DIR="${HOME}/.claude_config_docker"
+CODEX_CONFIG_DIR="${HOME}/.codex_config_docker"
 LAST_UPDATE_CHECK_FILE="${CONFIG_DIR}/.last_update_check"
 UPDATE_CHECK_INTERVAL=86400  # 24 hours in seconds
 
@@ -509,8 +510,9 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
         docker exec -it -w /home/developer/workspace "${CONTAINER_NAME}" /bin/bash
     fi
 else
-    # Create Claude config directory if it doesn't exist
+    # Create config directories if they don't exist
     mkdir -p "${CLAUDE_CONFIG_DIR}"
+    mkdir -p "${CODEX_CONFIG_DIR}"
 
     echo -e "${GREEN}Creating new container: ${CONTAINER_NAME}${NC}"
     echo -e "${BLUE}Workspace: $(pwd)${NC}"
@@ -525,6 +527,7 @@ else
         --shm-size="${SHM_SIZE}" \
         -v "$(pwd):/home/developer/workspace" \
         -v "${CLAUDE_CONFIG_DIR}:/home/developer/.claude" \
+        -v "${CODEX_CONFIG_DIR}:/home/developer/.codex" \
         -p "${VNC_PORT}:5900" \
         -p "${NOVNC_PORT}:6080" \
         -e DISPLAY=:99 \
