@@ -489,44 +489,128 @@ is_valid_tool() {
     return 1
 }
 
-# Interactive tool selection menu
+# Interactive tool selection menu with arrow keys
 select_tool() {
+    local selected=0
+    local total=${#TOOLS[@]}
+
+    # Hide cursor
+    tput civis 2>/dev/null || true
+
+    # Function to draw the menu
+    draw_menu() {
+        # Move cursor to start position and clear
+        echo -e "\033[${total}A" 2>/dev/null || true
+
+        local i=0
+        for tool in "${TOOLS[@]}"; do
+            local tool_display=$(get_tool_name "$tool")
+            local yolo_flag=$(get_tool_yolo_flag "$tool")
+
+            if [ $i -eq $selected ]; then
+                # Highlighted item
+                if [ "$tool" == "bash" ]; then
+                    echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC}"
+                else
+                    echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC} ${YELLOW}${yolo_flag}${NC}"
+                fi
+            else
+                # Normal item
+                if [ "$tool" == "bash" ]; then
+                    echo -e "    ${tool_display}"
+                else
+                    echo -e "    ${tool_display}"
+                fi
+            fi
+            i=$((i + 1))
+        done
+    }
+
+    # Print header
     echo ""
     echo -e "${CYAN}╔════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║      选择要启动的 Vibe Coding 工具      ║${NC}"
     echo -e "${CYAN}╚════════════════════════════════════════╝${NC}"
     echo ""
+    echo -e "${YELLOW}  ↑/↓ 选择  Enter 确认  q 退出${NC}"
+    echo ""
 
-    local i=1
+    # Initial draw
+    local i=0
     for tool in "${TOOLS[@]}"; do
         local tool_display=$(get_tool_name "$tool")
-        if [ "$tool" == "bash" ]; then
-            echo -e "  ${YELLOW}$i)${NC} ${tool_display}"
+        local yolo_flag=$(get_tool_yolo_flag "$tool")
+
+        if [ $i -eq $selected ]; then
+            if [ "$tool" == "bash" ]; then
+                echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC}"
+            else
+                echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC} ${YELLOW}${yolo_flag}${NC}"
+            fi
         else
-            echo -e "  ${GREEN}$i)${NC} ${tool_display}"
+            if [ "$tool" == "bash" ]; then
+                echo -e "    ${tool_display}"
+            else
+                echo -e "    ${tool_display}"
+            fi
         fi
         i=$((i + 1))
     done
+
+    # Read keys
+    while true; do
+        # Read single character
+        IFS= read -rsn1 key
+
+        # Check for escape sequence (arrow keys)
+        if [[ $key == $'\x1b' ]]; then
+            read -rsn2 -t 0.1 key
+            case "$key" in
+                '[A') # Up arrow
+                    selected=$((selected - 1))
+                    if [ $selected -lt 0 ]; then
+                        selected=$((total - 1))
+                    fi
+                    ;;
+                '[B') # Down arrow
+                    selected=$((selected + 1))
+                    if [ $selected -ge $total ]; then
+                        selected=0
+                    fi
+                    ;;
+            esac
+            draw_menu
+        elif [[ $key == '' ]]; then
+            # Enter key
+            break
+        elif [[ $key == 'q' ]] || [[ $key == 'Q' ]]; then
+            # Quit
+            tput cnorm 2>/dev/null || true
+            echo ""
+            echo -e "${YELLOW}已取消${NC}"
+            exit 0
+        elif [[ $key == 'j' ]]; then
+            # vim-style down
+            selected=$((selected + 1))
+            if [ $selected -ge $total ]; then
+                selected=0
+            fi
+            draw_menu
+        elif [[ $key == 'k' ]]; then
+            # vim-style up
+            selected=$((selected - 1))
+            if [ $selected -lt 0 ]; then
+                selected=$((total - 1))
+            fi
+            draw_menu
+        fi
+    done
+
+    # Show cursor
+    tput cnorm 2>/dev/null || true
+
+    SELECTED_TOOL="${TOOLS[$selected]}"
     echo ""
-    echo -e "${YELLOW}提示: 工具将以 YOLO 模式启动 (自动跳过权限确认)${NC}"
-    echo -e "${YELLOW}      在容器内退出工具后可手动选择其他模式${NC}"
-    echo ""
-    echo -n -e "${CYAN}请输入数字 [1-${#TOOLS[@]}] (默认: 1): ${NC}"
-
-    read -r choice
-
-    # Default to 1 (claude) if empty
-    if [ -z "$choice" ]; then
-        choice=1
-    fi
-
-    # Validate input and return tool name
-    if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#TOOLS[@]}" ]; then
-        SELECTED_TOOL="${TOOLS[$((choice-1))]}"
-    else
-        echo -e "${RED}无效选择，使用默认工具: Claude Code${NC}"
-        SELECTED_TOOL="claude"
-    fi
 }
 
 # Run selected tool in container
