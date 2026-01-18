@@ -499,25 +499,28 @@ select_tool() {
 
     # Function to draw the menu
     draw_menu() {
-        # Move cursor to start position and clear
-        echo -e "\033[${total}A" 2>/dev/null || true
+        # Move cursor to start position
+        printf "\033[%dA" "$total" 2>/dev/null || true
 
         local i=0
         for tool in "${TOOLS[@]}"; do
             local tool_display=$(get_tool_name "$tool")
             local yolo_flag=$(get_tool_yolo_flag "$tool")
 
+            # Clear line first
+            printf "\033[2K"
+
             if [ $i -eq $selected ]; then
-                # Highlighted item
-                if [ "$tool" == "bash" ]; then
-                    echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC}"
-                else
+                # Highlighted item (green background effect)
+                if [ -n "$yolo_flag" ]; then
                     echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC} ${YELLOW}${yolo_flag}${NC}"
+                else
+                    echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC}"
                 fi
             else
-                # Normal item
-                if [ "$tool" == "bash" ]; then
-                    echo -e "    ${tool_display}"
+                # Normal item - also show yolo flag in dim color
+                if [ -n "$yolo_flag" ]; then
+                    echo -e "    ${tool_display} \033[2m${yolo_flag}\033[0m"
                 else
                     echo -e "    ${tool_display}"
                 fi
@@ -542,14 +545,14 @@ select_tool() {
         local yolo_flag=$(get_tool_yolo_flag "$tool")
 
         if [ $i -eq $selected ]; then
-            if [ "$tool" == "bash" ]; then
-                echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC}"
-            else
+            if [ -n "$yolo_flag" ]; then
                 echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC} ${YELLOW}${yolo_flag}${NC}"
+            else
+                echo -e "  ${CYAN}▶${NC} ${GREEN}${tool_display}${NC}"
             fi
         else
-            if [ "$tool" == "bash" ]; then
-                echo -e "    ${tool_display}"
+            if [ -n "$yolo_flag" ]; then
+                echo -e "    ${tool_display} \033[2m${yolo_flag}\033[0m"
             else
                 echo -e "    ${tool_display}"
             fi
@@ -564,22 +567,27 @@ select_tool() {
 
         # Check for escape sequence (arrow keys)
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 -t 0.1 key
+            # Read the rest of escape sequence (non-blocking)
+            read -rsn1 -t 1 k1 2>/dev/null || true
+            read -rsn1 -t 1 k2 2>/dev/null || true
+            key="${k1}${k2}"
+
             case "$key" in
-                '[A') # Up arrow
+                '[A'|'OA') # Up arrow
                     selected=$((selected - 1))
                     if [ $selected -lt 0 ]; then
                         selected=$((total - 1))
                     fi
+                    draw_menu
                     ;;
-                '[B') # Down arrow
+                '[B'|'OB') # Down arrow
                     selected=$((selected + 1))
                     if [ $selected -ge $total ]; then
                         selected=0
                     fi
+                    draw_menu
                     ;;
             esac
-            draw_menu
         elif [[ $key == '' ]]; then
             # Enter key
             break
