@@ -68,6 +68,99 @@ echo -e "  ${GREEN}✓${NC} Installed to ${INSTALL_DIR}/${SCRIPT_NAME}"
 mkdir -p "${HOME}/.code-box"
 echo -e "  ${GREEN}✓${NC} Created config directory: ~/.code-box"
 
+# Install bash completion
+echo ""
+echo -e "${BLUE}Installing bash completion...${NC}"
+
+COMPLETION_SCRIPT='# code-box bash completion
+_code_box_completions() {
+    local tools="claude codex gemini opencode omo bash"
+    local opts="--help --version --stop --remove --logs --list --clean --pull --update -h -v -l"
+
+    if [[ "${COMP_WORDS[COMP_CWORD]}" == -* ]]; then
+        COMPREPLY=($(compgen -W "$opts" -- "${COMP_WORDS[COMP_CWORD]}"))
+    else
+        COMPREPLY=($(compgen -W "$tools $opts" -- "${COMP_WORDS[COMP_CWORD]}"))
+    fi
+}
+complete -F _code_box_completions code-box'
+
+# Determine completion directory based on shell
+SHELL_NAME=$(basename "$SHELL")
+COMPLETION_INSTALLED=false
+
+case "$SHELL_NAME" in
+    bash)
+        # Try system-wide directory first, then user directory
+        if [ -d "/etc/bash_completion.d" ] && [ -w "/etc/bash_completion.d" ]; then
+            echo "$COMPLETION_SCRIPT" > "/etc/bash_completion.d/code-box"
+            COMPLETION_INSTALLED=true
+            echo -e "  ${GREEN}✓${NC} Installed bash completion to /etc/bash_completion.d/code-box"
+        elif [ -d "/usr/local/etc/bash_completion.d" ] && [ -w "/usr/local/etc/bash_completion.d" ]; then
+            echo "$COMPLETION_SCRIPT" > "/usr/local/etc/bash_completion.d/code-box"
+            COMPLETION_INSTALLED=true
+            echo -e "  ${GREEN}✓${NC} Installed bash completion to /usr/local/etc/bash_completion.d/code-box"
+        else
+            mkdir -p "${HOME}/.local/share/bash-completion/completions"
+            echo "$COMPLETION_SCRIPT" > "${HOME}/.local/share/bash-completion/completions/code-box"
+            COMPLETION_INSTALLED=true
+            echo -e "  ${GREEN}✓${NC} Installed bash completion to ~/.local/share/bash-completion/completions/code-box"
+        fi
+        ;;
+    zsh)
+        # For zsh, add to .zshrc or create a completion file
+        ZSH_COMPLETION_DIR="${HOME}/.zsh/completions"
+        mkdir -p "$ZSH_COMPLETION_DIR"
+
+        cat > "${ZSH_COMPLETION_DIR}/_code-box" << 'ZSHEOF'
+#compdef code-box
+
+_code_box() {
+    local -a tools opts
+    tools=(
+        'claude:Launch Claude Code (--dangerously-skip-permissions)'
+        'codex:Launch Codex (--full-auto)'
+        'gemini:Launch Gemini CLI (--yolo)'
+        'opencode:Launch OpenCode'
+        'omo:Launch oh-my-opencode'
+        'bash:Launch Bash shell only'
+    )
+    opts=(
+        '--help:Show help message'
+        '--version:Show version information'
+        '--stop:Stop the container'
+        '--remove:Stop and remove the container'
+        '--logs:Show container logs'
+        '--list:List all projects and their ports'
+        '--clean:Remove all stopped containers'
+        '--pull:Pull latest Docker image'
+        '--update:Update CLI and pull latest image'
+    )
+
+    _describe 'tools' tools
+    _describe 'options' opts
+}
+
+_code_box "$@"
+ZSHEOF
+
+        # Add completion directory to fpath if not already present
+        if [ -f "${HOME}/.zshrc" ] && ! grep -q "fpath.*\.zsh/completions" "${HOME}/.zshrc" 2>/dev/null; then
+            echo "" >> "${HOME}/.zshrc"
+            echo "# Added by code-box installer - completion support" >> "${HOME}/.zshrc"
+            echo 'fpath=(~/.zsh/completions $fpath)' >> "${HOME}/.zshrc"
+            echo 'autoload -Uz compinit && compinit' >> "${HOME}/.zshrc"
+        fi
+
+        COMPLETION_INSTALLED=true
+        echo -e "  ${GREEN}✓${NC} Installed zsh completion to ~/.zsh/completions/_code-box"
+        ;;
+esac
+
+if [ "$COMPLETION_INSTALLED" = false ]; then
+    echo -e "  ${YELLOW}Note: Could not auto-install completion for $SHELL_NAME${NC}"
+fi
+
 # Pull Docker image
 echo ""
 echo -e "${BLUE}Pulling Docker image (this may take a while)...${NC}"
@@ -140,11 +233,16 @@ echo -e "${GREEN}========================================${NC}"
 echo ""
 echo -e "Usage:"
 echo -e "  ${CYAN}cd /path/to/your/project${NC}"
-echo -e "  ${CYAN}code-box${NC}                 # Start container"
+echo -e "  ${CYAN}code-box${NC}                 # Show tool selection menu"
+echo -e "  ${CYAN}code-box claude${NC}          # Start Claude Code (YOLO mode)"
+echo -e "  ${CYAN}code-box codex${NC}           # Start Codex (full-auto mode)"
 echo -e "  ${CYAN}code-box --list${NC}          # List all projects"
 echo -e "  ${CYAN}code-box --help${NC}          # Show help"
 echo ""
 echo -e "${YELLOW}Installed AI Tools:${NC}"
 echo "  Claude Code, Codex, Gemini CLI, OpenCode, oh-my-opencode"
+echo ""
+echo -e "${YELLOW}Tab Completion:${NC}"
+echo "  Type 'code-box <TAB>' to see available tools and options"
 echo ""
 echo -e "${BLUE}Happy coding!${NC}"

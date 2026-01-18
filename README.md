@@ -35,12 +35,48 @@ After installation, you can use `code-box` from any directory:
 
 ```bash
 cd /path/to/your/project
-code-box              # Start container
+code-box              # Show tool selection menu
+code-box claude       # Start Claude Code (YOLO mode)
+code-box codex        # Start Codex (full-auto mode)
 code-box --list       # List all projects and ports
 code-box --help       # Show help
 ```
 
+**Tab Completion**: Type `code-box <TAB>` to see available tools and options.
+
 ## Features
+
+### Tool Selection & YOLO Mode
+
+Code-Box supports direct tool launching with automatic YOLO mode (skip permission confirmations):
+
+| Tool | Command | YOLO Flag |
+|------|---------|-----------|
+| Claude Code | `code-box claude` | `--dangerously-skip-permissions` |
+| Codex | `code-box codex` | `--full-auto` |
+| Gemini CLI | `code-box gemini` | `--yolo` |
+| OpenCode | `code-box opencode` | `--dangerously-skip-permissions` |
+| oh-my-opencode | `code-box omo` | `--dangerously-skip-permissions` |
+| Bash Shell | `code-box bash` | (no tool, just shell) |
+
+When you run `code-box` without arguments, an interactive menu appears:
+
+```
+╔════════════════════════════════════════╗
+║      Select Vibe Coding Tool           ║
+╚════════════════════════════════════════╝
+
+  1) Claude Code (Anthropic)
+  2) Codex (OpenAI)
+  3) Gemini CLI (Google)
+  4) OpenCode
+  5) oh-my-opencode
+  6) Bash Shell (no tool)
+
+Enter number [1-6] (default: 1):
+```
+
+**Note**: Tools launch in YOLO mode by default. To use other modes, exit the tool inside the container and restart it manually.
 
 ### Installed Vibe Coding Tools
 
@@ -187,10 +223,24 @@ EOF
 
 ## Commands
 
+### Tool Selection
+
 ```bash
-# Start or attach to container (from any project directory)
+# Show interactive tool selection menu
 code-box
 
+# Launch specific tool with YOLO mode
+code-box claude       # Claude Code (--dangerously-skip-permissions)
+code-box codex        # Codex (--full-auto)
+code-box gemini       # Gemini CLI (--yolo)
+code-box opencode     # OpenCode
+code-box omo          # oh-my-opencode
+code-box bash         # Just bash shell, no tool
+```
+
+### Container Management
+
+```bash
 # Stop the container
 code-box --stop
 

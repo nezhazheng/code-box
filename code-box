@@ -7,7 +7,7 @@ set -e
 
 # Version - auto-generated from last modified date
 # Format: YYYY.MM.DD (updated automatically when script changes)
-VERSION="2026.01.13"
+VERSION="2026.01.18"
 
 # Color codes
 GREEN='\033[0;32m'
@@ -38,6 +38,35 @@ SHM_SIZE="2g"
 # Port range for random allocation
 PORT_MIN=10000
 PORT_MAX=60000
+
+# Supported tools list
+TOOLS=("claude" "codex" "gemini" "opencode" "omo" "bash")
+
+# Get tool display name
+get_tool_name() {
+    case "$1" in
+        claude)   echo "Claude Code (Anthropic)" ;;
+        codex)    echo "Codex (OpenAI)" ;;
+        gemini)   echo "Gemini CLI (Google)" ;;
+        opencode) echo "OpenCode" ;;
+        omo)      echo "oh-my-opencode" ;;
+        bash)     echo "Bash Shell (无特定工具)" ;;
+        *)        echo "$1" ;;
+    esac
+}
+
+# Get tool YOLO mode flag
+get_tool_yolo_flag() {
+    case "$1" in
+        claude)   echo "--dangerously-skip-permissions" ;;
+        codex)    echo "--full-auto" ;;
+        gemini)   echo "--yolo" ;;
+        opencode) echo "--dangerously-skip-permissions" ;;
+        omo)      echo "--dangerously-skip-permissions" ;;
+        bash)     echo "" ;;
+        *)        echo "" ;;
+    esac
+}
 
 # Ensure config directory exists
 mkdir -p "${CONFIG_DIR}"
@@ -304,10 +333,18 @@ show_help() {
     echo -e "${GREEN}Code Box - Universal AI Coding Sandbox${NC}"
     echo -e "${CYAN}Version: ${VERSION}${NC}"
     echo ""
-    echo "Usage: code-box [COMMAND]"
+    echo "Usage: code-box [TOOL|COMMAND]"
     echo ""
-    echo "Commands:"
-    echo "  (no args)    Start or attach to container for current directory"
+    echo -e "${YELLOW}Tools (start with YOLO mode):${NC}"
+    echo "  claude       Launch Claude Code (--dangerously-skip-permissions)"
+    echo "  codex        Launch Codex (--full-auto)"
+    echo "  gemini       Launch Gemini CLI (--yolo)"
+    echo "  opencode     Launch OpenCode"
+    echo "  omo          Launch oh-my-opencode"
+    echo "  bash         Launch Bash shell only"
+    echo ""
+    echo -e "${YELLOW}Commands:${NC}"
+    echo "  (no args)    Show tool selection menu"
     echo "  --stop       Stop the container"
     echo "  --remove     Stop and remove the container"
     echo "  --logs       Show container logs"
@@ -318,8 +355,10 @@ show_help() {
     echo "  --version    Show version information"
     echo "  --help       Show this help message"
     echo ""
-    echo -e "${YELLOW}Installed Tools:${NC}"
-    echo "  Claude Code, Codex, Gemini CLI, OpenCode, oh-my-opencode"
+    echo -e "${YELLOW}Examples:${NC}"
+    echo "  code-box              # Show interactive tool selection"
+    echo "  code-box claude       # Start Claude Code in YOLO mode"
+    echo "  code-box codex        # Start Codex in full-auto mode"
     echo ""
     echo -e "${YELLOW}Config Directory:${NC} ${CONFIG_DIR}"
     echo -e "${YELLOW}Ports Registry:${NC}   ${PORTS_FILE}"
@@ -439,6 +478,77 @@ clean_all() {
     echo -e "${GREEN}Cleared ports registry${NC}"
 }
 
+# Check if argument is a valid tool name
+is_valid_tool() {
+    local tool=$1
+    for t in "${TOOLS[@]}"; do
+        if [ "$t" == "$tool" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Interactive tool selection menu
+select_tool() {
+    echo ""
+    echo -e "${CYAN}╔════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║      选择要启动的 Vibe Coding 工具      ║${NC}"
+    echo -e "${CYAN}╚════════════════════════════════════════╝${NC}"
+    echo ""
+
+    local i=1
+    for tool in "${TOOLS[@]}"; do
+        local tool_display=$(get_tool_name "$tool")
+        if [ "$tool" == "bash" ]; then
+            echo -e "  ${YELLOW}$i)${NC} ${tool_display}"
+        else
+            echo -e "  ${GREEN}$i)${NC} ${tool_display}"
+        fi
+        i=$((i + 1))
+    done
+    echo ""
+    echo -e "${YELLOW}提示: 工具将以 YOLO 模式启动 (自动跳过权限确认)${NC}"
+    echo -e "${YELLOW}      在容器内退出工具后可手动选择其他模式${NC}"
+    echo ""
+    echo -n -e "${CYAN}请输入数字 [1-${#TOOLS[@]}] (默认: 1): ${NC}"
+
+    read -r choice
+
+    # Default to 1 (claude) if empty
+    if [ -z "$choice" ]; then
+        choice=1
+    fi
+
+    # Validate input and return tool name
+    if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#TOOLS[@]}" ]; then
+        SELECTED_TOOL="${TOOLS[$((choice-1))]}"
+    else
+        echo -e "${RED}无效选择，使用默认工具: Claude Code${NC}"
+        SELECTED_TOOL="claude"
+    fi
+}
+
+# Run selected tool in container
+run_tool_in_container() {
+    local container_name=$1
+    local tool=$2
+
+    if [ "$tool" == "bash" ] || [ -z "$tool" ]; then
+        docker exec -it -w /home/developer/workspace "${container_name}" /bin/bash
+    else
+        local yolo_flag=$(get_tool_yolo_flag "$tool")
+        local tool_display=$(get_tool_name "$tool")
+        echo ""
+        echo -e "${GREEN}启动 ${tool_display}...${NC}"
+        if [ -n "$yolo_flag" ]; then
+            echo -e "${YELLOW}⚠ YOLO 模式已启用 (${yolo_flag})${NC}"
+        fi
+        echo ""
+        docker exec -it -w /home/developer/workspace "${container_name}" /bin/bash -c "${tool} ${yolo_flag}; exec bash"
+    fi
+}
+
 # Main container operations
 CONTAINER_NAME=$(get_container_name)
 PROJECT_ID=$(get_project_id)
@@ -488,6 +598,22 @@ case "${1:-}" in
         ;;
 esac
 
+# Handle tool argument or show selection menu
+SELECTED_TOOL=""
+if [ -n "${1:-}" ]; then
+    # Check if argument is a valid tool name
+    if is_valid_tool "$1"; then
+        SELECTED_TOOL="$1"
+    else
+        echo -e "${RED}Unknown tool or command: $1${NC}"
+        echo "Use 'code-box --help' to see available tools and commands."
+        exit 1
+    fi
+else
+    # No argument provided, show interactive selection menu
+    select_tool
+fi
+
 # Get ports for this project
 read VNC_PORT NOVNC_PORT <<< $(get_ports)
 
@@ -499,7 +625,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
         echo -e "${YELLOW}VNC:${NC}   localhost:${VNC_PORT}"
         echo ""
         echo -e "${BLUE}Attaching to container...${NC}"
-        docker exec -it -w /home/developer/workspace "${CONTAINER_NAME}" /bin/bash
+        run_tool_in_container "${CONTAINER_NAME}" "${SELECTED_TOOL}"
     else
         echo -e "${YELLOW}Container ${CONTAINER_NAME} exists but is stopped.${NC}"
         echo -e "${BLUE}Starting container...${NC}"
@@ -507,7 +633,7 @@ if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
         echo -e "${YELLOW}noVNC:${NC} http://localhost:${NOVNC_PORT}/vnc.html"
         echo -e "${YELLOW}VNC:${NC}   localhost:${VNC_PORT}"
         echo ""
-        docker exec -it -w /home/developer/workspace "${CONTAINER_NAME}" /bin/bash
+        run_tool_in_container "${CONTAINER_NAME}" "${SELECTED_TOOL}"
     fi
 else
     # Create config directories if they don't exist
@@ -520,7 +646,8 @@ else
     echo -e "${BLUE}noVNC Port: ${NOVNC_PORT}${NC}"
     echo ""
 
-    docker run -it \
+    # Start container in background first (to let entrypoint start VNC services)
+    docker run -d \
         --name "${CONTAINER_NAME}" \
         --memory="${MEMORY_LIMIT}" \
         --cpus="${CPU_LIMIT}" \
@@ -531,6 +658,16 @@ else
         -p "${VNC_PORT}:5900" \
         -p "${NOVNC_PORT}:6080" \
         -e DISPLAY=:99 \
-        "${IMAGE_NAME}" \
-        /bin/bash
+        "${IMAGE_NAME}" > /dev/null
+
+    # Wait for container to be ready
+    echo -e "${BLUE}Waiting for container to start...${NC}"
+    sleep 2
+
+    echo -e "${YELLOW}noVNC:${NC} http://localhost:${NOVNC_PORT}/vnc.html"
+    echo -e "${YELLOW}VNC:${NC}   localhost:${VNC_PORT}"
+    echo ""
+
+    # Run the selected tool
+    run_tool_in_container "${CONTAINER_NAME}" "${SELECTED_TOOL}"
 fi

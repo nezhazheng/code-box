@@ -35,12 +35,48 @@ curl -fsSL https://raw.githubusercontent.com/nezhazheng/code-box/main/install.sh
 
 ```bash
 cd /path/to/your/project
-code-box              # 启动容器
+code-box              # 显示工具选择菜单
+code-box claude       # 启动 Claude Code (YOLO 模式)
+code-box codex        # 启动 Codex (full-auto 模式)
 code-box --list       # 列出所有项目和端口
 code-box --help       # 显示帮助
 ```
 
+**Tab 补全**：输入 `code-box <TAB>` 可查看所有可用的工具和选项。
+
 ## 功能特性
+
+### 工具选择 & YOLO 模式
+
+Code-Box 支持直接启动工具，并自动开启 YOLO 模式（跳过权限确认）：
+
+| 工具 | 命令 | YOLO 参数 |
+|------|------|-----------|
+| Claude Code | `code-box claude` | `--dangerously-skip-permissions` |
+| Codex | `code-box codex` | `--full-auto` |
+| Gemini CLI | `code-box gemini` | `--yolo` |
+| OpenCode | `code-box opencode` | `--dangerously-skip-permissions` |
+| oh-my-opencode | `code-box omo` | `--dangerously-skip-permissions` |
+| Bash Shell | `code-box bash` | (仅启动 shell，不启动工具) |
+
+当你不带参数运行 `code-box` 时，会显示交互式选择菜单：
+
+```
+╔════════════════════════════════════════╗
+║      选择要启动的 Vibe Coding 工具      ║
+╚════════════════════════════════════════╝
+
+  1) Claude Code (Anthropic)
+  2) Codex (OpenAI)
+  3) Gemini CLI (Google)
+  4) OpenCode
+  5) oh-my-opencode
+  6) Bash Shell (无特定工具)
+
+请输入数字 [1-6] (默认: 1):
+```
+
+**提示**：工具默认以 YOLO 模式启动。如需使用其他模式，可在容器内退出工具后手动重新启动。
 
 ### 预装的 Vibe Coding 工具
 
@@ -166,10 +202,24 @@ EOF
 
 ## 命令
 
+### 工具选择
+
 ```bash
-# 启动或连接到容器（在任意项目目录）
+# 显示交互式工具选择菜单
 code-box
 
+# 启动指定工具 (YOLO 模式)
+code-box claude       # Claude Code (--dangerously-skip-permissions)
+code-box codex        # Codex (--full-auto)
+code-box gemini       # Gemini CLI (--yolo)
+code-box opencode     # OpenCode
+code-box omo          # oh-my-opencode
+code-box bash         # 仅 bash shell，不启动工具
+```
+
+### 容器管理
+
+```bash
 # 停止容器
 code-box --stop
 
