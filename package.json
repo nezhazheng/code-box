@@ -7,8 +7,8 @@
   "dependencies": {
     "@anthropic-ai/claude-code": "2.1.74",
     "@openai/codex": "0.114.0",
-    "@google/gemini-cli": "0.33.0",
-    "opencode-ai": "1.2.24",
+    "@google/gemini-cli": "0.33.1",
+    "opencode-ai": "1.2.25",
     "oh-my-opencode": "3.11.2"
   },
   "scripts": {
