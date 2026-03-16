@@ -8,7 +8,7 @@
     "@anthropic-ai/claude-code": "2.1.76",
     "@openai/codex": "0.114.0",
     "@google/gemini-cli": "0.33.1",
-    "opencode-ai": "1.2.26",
+    "opencode-ai": "1.2.27",
     "oh-my-opencode": "3.11.2"
   },
   "scripts": {
