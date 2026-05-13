@@ -5,11 +5,11 @@
   "repository": "https://github.com/nezhazheng/code-box",
   "private": true,
   "dependencies": {
-    "@anthropic-ai/claude-code": "2.1.139",
+    "@anthropic-ai/claude-code": "2.1.140",
     "@openai/codex": "0.130.0",
-    "@google/gemini-cli": "0.41.2",
+    "@google/gemini-cli": "0.42.0",
     "opencode-ai": "1.14.48",
-    "oh-my-opencode": "4.0.0"
+    "oh-my-opencode": "4.1.1"
   },
   "scripts": {
     "smoke-test": "./smoke-test.sh"
