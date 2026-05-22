@@ -9,7 +9,7 @@
     "@openai/codex": "0.133.0",
     "@google/gemini-cli": "0.43.0",
     "opencode-ai": "1.15.7",
-    "oh-my-opencode": "4.3.0"
+    "oh-my-opencode": "4.3.1"
   },
   "scripts": {
     "smoke-test": "./smoke-test.sh"
