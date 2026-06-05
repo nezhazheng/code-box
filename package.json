@@ -5,10 +5,10 @@
   "repository": "https://github.com/nezhazheng/code-box",
   "private": true,
   "dependencies": {
-    "@anthropic-ai/claude-code": "2.1.163",
+    "@anthropic-ai/claude-code": "2.1.165",
     "@openai/codex": "0.137.0",
     "@google/gemini-cli": "0.45.1",
-    "opencode-ai": "1.15.13",
+    "opencode-ai": "1.16.0",
     "oh-my-opencode": "4.7.5"
   },
   "scripts": {
