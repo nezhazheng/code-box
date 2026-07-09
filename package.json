@@ -6,10 +6,10 @@
   "private": true,
   "dependencies": {
     "@anthropic-ai/claude-code": "2.1.205",
-    "@openai/codex": "0.143.0",
+    "@openai/codex": "0.144.0",
     "@google/gemini-cli": "0.50.0",
-    "opencode-ai": "1.17.15",
-    "oh-my-opencode": "4.16.0"
+    "opencode-ai": "1.17.18",
+    "oh-my-opencode": "4.16.1"
   },
   "scripts": {
     "smoke-test": "./smoke-test.sh"
