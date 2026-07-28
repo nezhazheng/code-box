@@ -7,9 +7,9 @@
   "dependencies": {
     "@anthropic-ai/claude-code": "2.1.220",
     "@openai/codex": "0.145.0",
-    "@google/gemini-cli": "0.52.0",
-    "opencode-ai": "1.18.8",
-    "oh-my-opencode": "4.19.2"
+    "@google/gemini-cli": "0.53.0",
+    "opencode-ai": "1.18.9",
+    "oh-my-opencode": "4.19.3"
   },
   "scripts": {
     "smoke-test": "./smoke-test.sh"
