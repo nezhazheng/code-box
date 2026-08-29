@@ -6,7 +6,7 @@
   "private": true,
   "dependencies": {
     "@anthropic-ai/claude-code": "2.1.251",
-    "@openai/codex": "0.150.1",
+    "@openai/codex": "0.151.0",
     "@google/gemini-cli": "0.57.0",
     "opencode-ai": "1.18.25",
     "oh-my-opencode": "4.19.4"
