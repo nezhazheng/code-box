@@ -8,8 +8,8 @@
     "@anthropic-ai/claude-code": "2.1.301",
     "@openai/codex": "0.163.0",
     "@google/gemini-cli": "0.64.0",
-    "opencode-ai": "1.19.2",
-    "oh-my-opencode": "5.1.33"
+    "opencode-ai": "1.19.3",
+    "oh-my-opencode": "5.1.34"
   },
   "scripts": {
     "smoke-test": "./smoke-test.sh"
